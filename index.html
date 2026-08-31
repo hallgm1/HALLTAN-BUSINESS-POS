@@ -3,248 +3,269 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HALLTAN BUSINESS POS - Platform ya Usimamizi wa Biashara & Madeni</title>
-    <!-- Firebase SDKs -->
+    <title>HALLTAN BUSINESS POS — Platform ya Usimamizi wa Biashara & Madeni</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #0f172a;
-            --accent: #2563eb;
-            --accent-hover: #1d4ed8;
+            --primary: #14432a;
+            --primary-2: #1b5e38;
+            --accent: #2e9e57;
+            --accent-solid-hover: #247247;
+            --accent-soft: #e7f5ec;
+            --gold: #e0a92e;
             --success: #16a34a;
             --warning: #d97706;
             --danger: #dc2626;
-            --bg: #f8fafc;
-            --border: #e2e8f0;
-            --text-dark: #0f172a;
-            --text-muted: #64748b;
+            --bg: #f4f8f5;
+            --surface: #ffffff;
+            --border: #dfe9e2;
+            --text-dark: #12281c;
+            --text-muted: #5f7568;
         }
-
-        * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
         body { background-color: var(--bg); color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; }
-
-        /* Navigation Bar */
         nav {
-            background: var(--primary);
-            color: white;
-            padding: 15px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            flex-wrap: wrap;
-            gap: 10px;
+            background: linear-gradient(100deg, var(--primary) 0%, var(--primary-2) 100%);
+            color: white; padding: 14px 25px; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 18px rgba(20,67,42,0.18); flex-wrap: wrap; gap: 10px; position: sticky; top: 0; z-index: 900;
         }
-        nav .brand { font-size: 20px; font-weight: 800; letter-spacing: 0.5px; color: #38bdf8; }
+        nav .brand { display: flex; align-items: center; gap: 11px; font-size: 19px; font-weight: 800; letter-spacing: 0.3px; color: #fff; }
+        nav .brand .logo-badge { width: 38px; height: 38px; border-radius: 11px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.22); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        nav .brand small { display:block; font-size: 10px; font-weight: 600; letter-spacing: 2px; color: #a7d8ba; text-transform: uppercase; margin-top: 1px; }
         nav .user-nav-info { display: flex; align-items: center; gap: 12px; }
-        .user-badge { background: #1e293b; padding: 6px 12px; border-radius: 20px; font-size: 13px; border: 1px solid #334155; }
-
-        .lang-select {
-            background: #1e293b;
-            color: #38bdf8;
-            border: 1px solid #334155;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            outline: none;
-        }
-
-        /* Landing / Auth Container */
-        .landing-container { max-width: 1100px; margin: 40px auto; padding: 0 20px; text-align: center; }
-        .hero-title { font-size: 36px; font-weight: 800; margin-bottom: 12px; color: var(--primary); }
-        .hero-subtitle { font-size: 18px; color: var(--text-muted); margin-bottom: 30px; max-width: 700px; margin-left: auto; margin-right: auto; }
-
-        /* Auth Card */
-        .auth-card {
-            background: white; padding: 35px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            max-width: 450px; margin: 0 auto 50px auto; border: 1px solid var(--border);
-        }
-        .btn-google {
-            background: #ffffff; color: #333; border: 1px solid #cbd5e1; padding: 12px 20px; border-radius: 8px;
-            font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center;
-            justify-content: center; gap: 10px; width: 100%; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .btn-google:hover { background: #f1f5f9; border-color: #94a3b8; }
-
-        /* Pricing Matrix */
-        .pricing-section { margin-top: 40px; }
+        .user-badge { background: rgba(255,255,255,0.10); padding: 6px 13px; border-radius: 20px; font-size: 13px; border: 1px solid rgba(255,255,255,0.18); }
+        .lang-select { background: rgba(255,255,255,0.10); color: #fff; border: 1px solid rgba(255,255,255,0.20); padding: 6px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; outline: none; }
+        .lang-select option { color: #12281c; }
+        .landing-container { max-width: 1100px; margin: 0 auto; padding: 0 20px 40px; text-align: center; width: 100%; }
+        .hero-wrap { background: radial-gradient(1200px 400px at 50% -140px, rgba(46,158,87,0.18), transparent 70%), linear-gradient(180deg, #ffffff 0%, var(--bg) 100%); padding: 56px 20px 40px; border-bottom: 1px solid var(--border); margin-bottom: 40px; }
+        .hero-badge { display: inline-flex; align-items: center; gap: 7px; background: var(--accent-soft); color: var(--primary-2); border: 1px solid #c7e6d3; padding: 6px 14px; border-radius: 30px; font-size: 12.5px; font-weight: 700; margin-bottom: 18px; }
+        .hero-title { font-size: 40px; font-weight: 800; margin-bottom: 14px; color: var(--primary); line-height: 1.1; letter-spacing: -0.5px; }
+        .hero-title .accent { color: var(--accent); }
+        .hero-subtitle { font-size: 17px; color: var(--text-muted); max-width: 640px; margin: 0 auto; line-height: 1.55; }
+        .auth-card { background: var(--surface); padding: 34px; border-radius: 16px; box-shadow: 0 12px 34px rgba(20,67,42,0.08); max-width: 440px; margin: -18px auto 20px auto; border: 1px solid var(--border); position: relative; z-index: 2; }
+        .auth-card h3 { color: var(--primary); }
+        .btn-google { background: #fff; color: #333; border: 1.5px solid #cbd8ce; padding: 12px 20px; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; transition: all 0.2s; box-shadow: 0 2px 6px rgba(20,67,42,0.05); }
+        .btn-google:hover { background: var(--accent-soft); border-color: var(--accent); }
+        .trust-row { display: flex; justify-content: center; gap: 22px; flex-wrap: wrap; margin-top: 16px; font-size: 12.5px; color: var(--text-muted); }
+        .trust-row span { display: inline-flex; align-items: center; gap: 6px; }
+        .pay-strip { max-width: 660px; margin: 8px auto 0; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; box-shadow: 0 6px 20px rgba(20,67,42,0.05); text-align: left; }
+        .pay-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+        .pay-lipa { display: flex; align-items: center; gap: 12px; }
+        .pay-lipa .lipa-no { font-size: 24px; font-weight: 800; color: var(--primary); letter-spacing: 1px; }
+        .lipa-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); }
+        .copy-btn { background: var(--accent-soft); color: var(--primary-2); border: 1px solid #c7e6d3; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .copy-btn:hover { background: #d8eede; }
+        .pay-owner { font-size: 13px; color: var(--text-muted); margin-top: 4px; font-weight: 600; }
+        .pay-methods { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
+        .method-chip { font-size: 11.5px; font-weight: 600; color: var(--primary-2); background: #f0f6f2; border: 1px solid var(--border); border-radius: 7px; padding: 5px 10px; }
+        .pricing-section { margin-top: 48px; }
+        .pricing-section h2 { color: var(--primary); font-size: 26px; }
         .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 25px; }
-        .price-card {
-            background: white; border: 2px solid var(--border); border-radius: 12px; padding: 25px;
-            text-align: left; position: relative; transition: transform 0.2s, border-color 0.2s;
-        }
-        .price-card.popular { border-color: var(--accent); }
-        .price-card.popular::before {
-            content: attr(data-popular-label); position: absolute; top: -12px; right: 20px;
-            background: var(--accent); color: white; font-size: 11px; padding: 3px 10px; border-radius: 10px; font-weight:bold;
-        }
-        .tier-name { font-size: 20px; font-weight: 700; color: var(--primary); }
-        .tier-price { font-size: 28px; font-weight: 800; margin: 15px 0; color: var(--accent); }
-        .tier-price span { font-size: 14px; font-weight: normal; color: var(--text-muted); }
-        .tier-features { list-style: none; margin: 20px 0; font-size: 14px; color: #475569; }
-        .tier-features li { margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-        .tier-features li::before { content: "✓"; color: var(--success); font-weight: bold; }
-
-        /* Duration Selector */
+        .price-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 16px; padding: 26px; text-align: left; position: relative; transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s; }
+        .price-card:hover { transform: translateY(-4px); box-shadow: 0 14px 32px rgba(20,67,42,0.10); }
+        .price-card.popular { border-color: var(--accent); box-shadow: 0 14px 32px rgba(46,158,87,0.14); }
+        .price-card.popular::before { content: attr(data-popular-label); position: absolute; top: -12px; right: 20px; background: var(--accent); color: white; font-size: 11px; padding: 4px 12px; border-radius: 10px; font-weight: 700; letter-spacing: 0.3px; }
+        .tier-name { font-size: 15px; font-weight: 800; color: var(--primary); letter-spacing: 1px; text-transform: uppercase; }
+        .tier-price { font-size: 30px; font-weight: 800; margin: 14px 0; color: var(--accent); }
+        .tier-price span { font-size: 14px; font-weight: 500; color: var(--text-muted); }
+        .tier-features { list-style: none; margin: 20px 0; font-size: 14px; color: #40564a; }
+        .tier-features li { margin-bottom: 11px; display: flex; align-items: flex-start; gap: 9px; }
+        .tier-features li::before { content: "\2713"; color: var(--accent); font-weight: 800; flex-shrink: 0; }
         .duration-selector { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
-        .duration-btn {
-            background: white; border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px;
-            font-size: 13px; font-weight: 600; cursor: pointer;
-        }
+        .duration-btn { background: var(--surface); border: 1.5px solid var(--border); padding: 9px 18px; border-radius: 22px; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--text-muted); transition: all 0.15s; }
+        .duration-btn:hover { border-color: var(--accent); color: var(--primary-2); }
         .duration-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-
-        /* SaaS Main App View */
-        #app-viewport { display: none; padding: 20px; max-width: 1250px; margin: 0 auto; width: 100%; }
-        .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid var(--border); overflow-x: auto; }
-        .tab-btn { background: transparent; border: none; padding: 10px 18px; font-weight: 600; cursor: pointer; border-radius: 6px 6px 0 0; color: #64748b; white-space: nowrap; }
+        #app-viewport { display: none; padding: 22px; max-width: 1250px; margin: 0 auto; width: 100%; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 22px; border-bottom: 2px solid var(--border); overflow-x: auto; }
+        .tab-btn { background: transparent; border: none; padding: 11px 18px; font-weight: 700; cursor: pointer; border-radius: 8px 8px 0 0; color: var(--text-muted); white-space: nowrap; transition: all 0.15s; }
+        .tab-btn:hover { color: var(--primary-2); }
         .tab-btn.active { background: var(--accent); color: white; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 20px; }
-        .card { background: white; border: 1px solid var(--border); padding: 20px; border-radius: 8px; }
+        .card { background: var(--surface); border: 1px solid var(--border); padding: 22px; border-radius: 12px; box-shadow: 0 3px 12px rgba(20,67,42,0.04); }
+        .card h3 { color: var(--primary); }
         form { display: grid; gap: 10px; }
         .form-group { display: flex; flex-direction: column; gap: 4px; }
-        label { font-size: 12px; font-weight: 600; color: #475569; }
-        input, select { padding: 9px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; outline: none; }
-        button.btn { background: var(--accent); color: white; border: none; padding: 10px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; }
-        button.btn:hover { background: var(--accent-hover); }
+        label { font-size: 12px; font-weight: 700; color: #40564a; }
+        input, select { padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.15s; }
+        input:focus, select:focus { border-color: var(--accent); }
+        button.btn { background: var(--accent); color: white; border: none; padding: 11px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+        button.btn:hover { background: var(--accent-solid-hover); }
         button.btn-success { background: var(--success); }
-        button.btn-warning { background: var(--warning); color: white; }
-        button.btn-outline { background: transparent; border: 1px solid white; color: white; }
+        button.btn-warning { background: var(--gold); color: #4a3608; }
+        button.btn-outline { background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.45); color: white; }
+        button.btn-outline:hover { background: rgba(255,255,255,0.20); }
         table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
-        th, td { padding: 10px; border-bottom: 1px solid var(--border); }
-        th { background: #f1f5f9; color: #475569; }
-
-        .subscription-banner {
-            background: #fffbe3; border: 1px solid #fde047; padding: 12px 20px; border-radius: 8px;
-            margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; font-size: 13px;
-        }
-
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-box { background: white; padding: 25px; width: 360px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        th, td { padding: 11px 10px; border-bottom: 1px solid var(--border); }
+        th { background: var(--accent-soft); color: var(--primary-2); font-weight: 700; }
+        .subscription-banner { background: #fdf6e3; border: 1px solid #f3dd9e; padding: 13px 20px; border-radius: 10px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; gap: 12px; flex-wrap: wrap; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(18,40,28,0.55); justify-content: center; align-items: center; z-index: 1000; padding: 16px; backdrop-filter: blur(3px); }
+        .modal-box { background: white; padding: 28px; width: 400px; max-width: 100%; border-radius: 14px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); max-height: 92vh; overflow-y: auto; }
+        .modal-box h3 { color: var(--primary); }
+        .pay-methods-modal { display: grid; gap: 8px; margin: 4px 0 6px; }
+        .pay-method-line { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: #f0f6f2; border: 1px solid var(--border); border-radius: 9px; padding: 10px 13px; font-size: 13px; }
+        .pay-method-line .pm-name { font-weight: 700; color: var(--primary-2); display: flex; align-items: center; gap: 7px; }
+        .pay-method-line .pm-val { font-weight: 700; color: var(--text-dark); font-variant-numeric: tabular-nums; }
+        .mini-copy { background: var(--accent-soft); border: 1px solid #c7e6d3; color: var(--primary-2); border-radius: 6px; padding: 3px 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
+        footer { margin-top: auto; background: var(--primary); color: #b9d9c5; padding: 26px 22px; text-align: center; font-size: 13px; }
+        footer .foot-brand { color: #fff; font-weight: 800; font-size: 15px; letter-spacing: 0.4px; margin-bottom: 6px; }
+        footer a { color: #8fd0a8; text-decoration: none; font-weight: 600; }
+        footer a:hover { text-decoration: underline; }
+        footer .foot-contacts { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--primary); color: #fff; padding: 12px 22px; border-radius: 10px; font-size: 13.5px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.25); opacity: 0; pointer-events: none; transition: all 0.25s; z-index: 2000; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        @media (max-width: 560px) { .hero-title { font-size: 30px; } nav .brand small { display: none; } }
     </style>
 </head>
 <body>
 
 <nav>
-    <div class="brand">HALLTAN BUSINESS POS</div>
+    <div class="brand">
+        <span class="logo-badge">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 4C20 4 8.5 3.2 5 9.2c-2.6 4.5-.4 8.9 1.2 10.6C7 15 10 11.5 15 9.5c-4 3-6.8 6.4-7.6 11.2 3.2 1.1 7.9.8 10.6-3.6C21.5 12 20 4 20 4Z" fill="#8fd0a8"/>
+                <path d="M6.2 20.8C7 15 10 11.5 15 9.5" stroke="#14432a" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+        </span>
+        <span>HALLTAN BUSINESS POS<small>Halltan &middot; Tanzania</small></span>
+    </div>
     <div class="user-nav-info" id="nav-user-area">
-        <!-- Language Selector Dropdown -->
         <select class="lang-select" id="lang-selector" onchange="changeLanguage(this.value)">
-            <option value="sw" selected>🇹🇿 Swahili</option>
-            <option value="en">🇬🇧 English</option>
+            <option value="sw" selected>&#127481;&#127487; Swahili</option>
+            <option value="en">&#127468;&#127463; English</option>
         </select>
         <span class="user-badge" id="user-display-email" data-i18n="noAccount">Bila Akaunti</span>
         <button class="btn btn-outline" id="btn-auth-action" onclick="handleAuthAction()" data-i18n="login">Ingia (Login)</button>
     </div>
 </nav>
 
-<!-- VIEW 1: LANDING & AUTH PAGE -->
-<div id="landing-viewport" class="landing-container">
-    <h1 class="hero-title">HALLTAN BUSINESS POS</h1>
-    <p class="hero-subtitle" data-i18n="heroSubtitle">Mfumo wa Kijanja wa Usimamizi wa Mauzo, Stoki na Madeni. Jisajili kwa Gmail na upate **Siku 14 za Jaribio Bure** papo hapo!</p>
-
-    <!-- Auth Box -->
-    <div class="auth-card">
-        <h3 style="margin-bottom: 8px;" data-i18n="startNow">Anza Kutumia Sasa</h3>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;" data-i18n="authSubtitle">Ingia au Jisajili moja kwa moja kwa akaunti yako ya Gmail</p>
-        <button class="btn-google" onclick="loginWithGoogle()">
-            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-            <span data-i18n="btnGoogle">Ingia kwa kutumia Google</span>
-        </button>
+<div id="landing-viewport" style="width:100%;">
+    <div class="hero-wrap">
+        <div class="landing-container" style="padding-bottom:0;">
+            <div class="hero-badge">&#127807; <span data-i18n="heroBadge">Siku 14 za Jaribio Bure</span></div>
+            <h1 class="hero-title">HALLTAN <span class="accent">BUSINESS POS</span></h1>
+            <p class="hero-subtitle" data-i18n="heroSubtitle">Mfumo wa Kijanja wa Usimamizi wa Mauzo, Stoki na Madeni. Jisajili kwa Gmail na upate Siku 14 za Jaribio Bure papo hapo!</p>
+        </div>
     </div>
 
-    <!-- Tiers & Subscription Section -->
-    <div class="pricing-section">
-        <h2 data-i18n="pricingHeading">Chagua Kifurushi Chako Rafiki (Subscription Tiers)</h2>
-        <p style="color: var(--text-muted); font-size: 14px; margin-top: 5px;" data-i18n="pricingSubtitle">Badilisha muda wa kulipia upate punguzo kubwa la bei</p>
-        <br>
-
-        <div class="duration-selector">
-            <button class="duration-btn active" onclick="setDuration(1, this)" data-i18n="dur1">Mwezi 1</button>
-            <button class="duration-btn" onclick="setDuration(3, this)" data-i18n="dur3">Miezi 3</button>
-            <button class="duration-btn" onclick="setDuration(6, this)" data-i18n="dur6">Miezi 6 (Punguzo 10%)</button>
-            <button class="duration-btn" onclick="setDuration(12, this)" data-i18n="dur12">Mwaka 1 / Miezi 12 (Punguzo 20%)</button>
+    <div class="landing-container">
+        <div class="auth-card">
+            <h3 style="margin-bottom: 8px;" data-i18n="startNow">Anza Kutumia Sasa</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;" data-i18n="authSubtitle">Ingia au Jisajili moja kwa moja kwa akaunti yako ya Gmail</p>
+            <button class="btn-google" onclick="loginWithGoogle()">
+                <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                <span data-i18n="btnGoogle">Ingia kwa kutumia Google</span>
+            </button>
+            <div class="trust-row">
+                <span>&#128274; <span data-i18n="trust1">Salama &amp; Binafsi</span></span>
+                <span>&#9729;&#65039; <span data-i18n="trust2">Cloud Backup</span></span>
+                <span>&#9889; <span data-i18n="trust3">Rahisi Kutumia</span></span>
+            </div>
         </div>
 
-        <div class="pricing-grid">
-            <!-- Small Tier -->
-            <div class="price-card">
-                <div class="tier-name">SMALL BUSINESS</div>
-                <div class="tier-price" id="price-small">TSh 15,000 <span data-i18n="perMonth">/ Mwezi</span></div>
-                <p style="font-size: 12px; color: var(--text-muted);" data-i18n="smallDesc">Inafaa kwa maduka madogo na wauzaji wa rejareja.</p>
-                <ul class="tier-features">
-                    <li data-i18n="smallF1">Duka 1 Moja Tu</li>
-                    <li data-i18n="smallF2">Mtumiaji 1 (Mwenyewe)</li>
-                    <li data-i18n="smallF3">Kuhifadhi Bidhaa Hadi 300</li>
-                    <li data-i18n="smallF4">Usimamizi wa Mauzo & Madeni</li>
-                    <li data-i18n="smallF5">Ripoti za Kawaida</li>
-                </ul>
-                <button class="btn" style="width: 100%;" onclick="selectTier('Small')" data-i18n="selectPlan">Chagua Kifurushi</button>
+        <div class="pay-strip">
+            <div class="pay-head">
+                <div>
+                    <div class="lipa-label" data-i18n="lipaStripLabel">&#128179; Lipa / Pay &mdash; Lipa Namba</div>
+                    <div class="pay-lipa">
+                        <span class="lipa-no" id="brand-lipa-no">21525070</span>
+                        <button class="copy-btn" onclick="copyText('21525070')" data-i18n="copyBtn">Nakili</button>
+                    </div>
+                    <div class="pay-owner">GERALD MAPINDUZI HALL</div>
+                </div>
             </div>
-
-            <!-- Medium Tier -->
-            <div class="price-card popular" id="card-popular" data-popular-label="Inayosauriwa Zaidi">
-                <div class="tier-name">MEDIUM BUSINESS</div>
-                <div class="tier-price" id="price-medium">TSh 35,000 <span data-i18n="perMonth">/ Mwezi</span></div>
-                <p style="font-size: 12px; color: var(--text-muted);" data-i18n="medDesc">Inafaa kwa maduka yenye mzunguko mkubwa wa mauzo.</p>
-                <ul class="tier-features">
-                    <li data-i18n="medF1">Maduka Hadi 2 (Multi-Branch)</li>
-                    <li data-i18n="medF2">Watumiaji Hadi 3</li>
-                    <li data-i18n="medF3">Bidhaa Bila Kikomo (Unlimited)</li>
-                    <li data-i18n="medF4">Risiti za WhatsApp & Kujiprint</li>
-                    <li data-i18n="medF5">Ripoti za Faida/Hasara (Profit & Loss)</li>
-                </ul>
-                <button class="btn" style="width: 100%;" onclick="selectTier('Medium')" data-i18n="selectPlan">Chagua Kifurushi</button>
+            <div class="pay-methods">
+                <span class="method-chip">NMB Mkononi</span>
+                <span class="method-chip">TIPS</span>
+                <span class="method-chip">Mastercard</span>
+                <span class="method-chip">Visa</span>
+                <span class="method-chip">UnionPay</span>
+                <span class="method-chip">Mixx by Yas &middot; 0778 650 250</span>
+                <span class="method-chip">M-Pesa &middot; 0755 660 645</span>
             </div>
+        </div>
 
-            <!-- Enterprise Tier -->
-            <div class="price-card">
-                <div class="tier-name">ENTERPRISE</div>
-                <div class="tier-price" id="price-enterprise">TSh 75,000 <span data-i18n="perMonth">/ Mwezi</span></div>
-                <p style="font-size: 12px; color: var(--text-muted);" data-i18n="entDesc">Kwa makampuni na maduka yenye matawi mengi.</p>
-                <ul class="tier-features">
-                    <li data-i18n="entF1">Maduka Bila Kikomo</li>
-                    <li data-i18n="entF2">Watumiaji Bila Kikomo</li>
-                    <li data-i18n="entF3">Custom Branding (Nembo Yako)</li>
-                    <li data-i18n="entF4">Daily Automatic Backup</li>
-                    <li data-i18n="entF5">Dedicated Priority Support 24/7</li>
-                </ul>
-                <button class="btn" style="width: 100%;" onclick="selectTier('Enterprise')" data-i18n="selectPlan">Chagua Kifurushi</button>
+        <div class="pricing-section">
+            <h2 data-i18n="pricingHeading">Chagua Kifurushi Chako Rafiki (Subscription Tiers)</h2>
+            <p style="color: var(--text-muted); font-size: 14px; margin-top: 5px;" data-i18n="pricingSubtitle">Badilisha muda wa kulipia upate punguzo kubwa la bei</p>
+            <br>
+            <div class="duration-selector">
+                <button class="duration-btn active" onclick="setDuration(1, this)" data-i18n="dur1">Mwezi 1</button>
+                <button class="duration-btn" onclick="setDuration(3, this)" data-i18n="dur3">Miezi 3</button>
+                <button class="duration-btn" onclick="setDuration(6, this)" data-i18n="dur6">Miezi 6 (Punguzo 10%)</button>
+                <button class="duration-btn" onclick="setDuration(12, this)" data-i18n="dur12">Mwaka 1 / Miezi 12 (Punguzo 20%)</button>
+            </div>
+            <div class="pricing-grid">
+                <div class="price-card">
+                    <div class="tier-name">SMALL BUSINESS</div>
+                    <div class="tier-price" id="price-small">TSh 15,000 <span data-i18n="perMonth">/ Mwezi</span></div>
+                    <p style="font-size: 12px; color: var(--text-muted);" data-i18n="smallDesc">Inafaa kwa maduka madogo na wauzaji wa rejareja.</p>
+                    <ul class="tier-features">
+                        <li data-i18n="smallF1">Duka 1 Moja Tu</li>
+                        <li data-i18n="smallF2">Mtumiaji 1 (Mwenyewe)</li>
+                        <li data-i18n="smallF3">Kuhifadhi Bidhaa Hadi 300</li>
+                        <li data-i18n="smallF4">Usimamizi wa Mauzo &amp; Madeni</li>
+                        <li data-i18n="smallF5">Ripoti za Kawaida</li>
+                    </ul>
+                    <button class="btn" style="width: 100%;" onclick="selectTier('Small')" data-i18n="selectPlan">Chagua Kifurushi</button>
+                </div>
+                <div class="price-card popular" id="card-popular" data-popular-label="Inayosauriwa Zaidi">
+                    <div class="tier-name">MEDIUM BUSINESS</div>
+                    <div class="tier-price" id="price-medium">TSh 35,000 <span data-i18n="perMonth">/ Mwezi</span></div>
+                    <p style="font-size: 12px; color: var(--text-muted);" data-i18n="medDesc">Inafaa kwa maduka yenye mzunguko mkubwa wa mauzo.</p>
+                    <ul class="tier-features">
+                        <li data-i18n="medF1">Maduka Hadi 2 (Multi-Branch)</li>
+                        <li data-i18n="medF2">Watumiaji Hadi 3</li>
+                        <li data-i18n="medF3">Bidhaa Bila Kikomo (Unlimited)</li>
+                        <li data-i18n="medF4">Risiti za WhatsApp &amp; Kujiprint</li>
+                        <li data-i18n="medF5">Ripoti za Faida/Hasara (Profit &amp; Loss)</li>
+                    </ul>
+                    <button class="btn" style="width: 100%;" onclick="selectTier('Medium')" data-i18n="selectPlan">Chagua Kifurushi</button>
+                </div>
+                <div class="price-card">
+                    <div class="tier-name">ENTERPRISE</div>
+                    <div class="tier-price" id="price-enterprise">TSh 75,000 <span data-i18n="perMonth">/ Mwezi</span></div>
+                    <p style="font-size: 12px; color: var(--text-muted);" data-i18n="entDesc">Kwa makampuni na maduka yenye matawi mengi.</p>
+                    <ul class="tier-features">
+                        <li data-i18n="entF1">Maduka Bila Kikomo</li>
+                        <li data-i18n="entF2">Watumiaji Bila Kikomo</li>
+                        <li data-i18n="entF3">Custom Branding (Nembo Yako)</li>
+                        <li data-i18n="entF4">Daily Automatic Backup</li>
+                        <li data-i18n="entF5">Dedicated Priority Support 24/7</li>
+                    </ul>
+                    <button class="btn" style="width: 100%;" onclick="selectTier('Enterprise')" data-i18n="selectPlan">Chagua Kifurushi</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- VIEW 2: MULTI-TENANT POS DASHBOARD -->
 <div id="app-viewport">
     <div class="subscription-banner">
         <div>
-            <strong data-i18n="lblPlan">Kifurushi Chako:</strong> <span id="current-tier-display">Medium Business</span> | 
-            <strong data-i18n="lblStatus">Hali:</strong> <span id="current-status-display" style="color: var(--success); font-weight: bold;">Active</span> | 
+            <strong data-i18n="lblPlan">Kifurushi Chako:</strong> <span id="current-tier-display">Medium Business</span> |
+            <strong data-i18n="lblStatus">Hali:</strong> <span id="current-status-display" style="color: var(--success); font-weight: bold;">Active</span> |
             <strong data-i18n="lblExpires">Itaisha:</strong> <span id="current-expiry-display">30 Nov 2026</span>
         </div>
-        <button class="btn btn-warning" style="font-size: 11px; padding: 5px 10px;" onclick="showPaymentModal()" data-i18n="btnUpgrade">Ongeza Salio / Upgrade</button>
+        <button class="btn btn-warning" style="font-size: 11px; padding: 6px 12px;" onclick="showPaymentModal()" data-i18n="btnUpgrade">Ongeza Salio / Upgrade</button>
     </div>
-
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('sales-tab', event)" data-i18n="tabSales">🛒 Mauzo (POS / Cart)</button>
-        <button class="tab-btn" onclick="switchTab('debts-tab', event)" data-i18n="tabDebts">💳 Madeni & Malipo</button>
-        <button class="tab-btn" onclick="switchTab('dashboard-tab', event)" data-i18n="tabReports">📊 Dashboard & Ripoti</button>
-        <button class="tab-btn" onclick="switchTab('inventory-tab', event)" data-i18n="tabStock">📦 Stoki (Inventory)</button>
-        <button class="tab-btn" onclick="switchTab('customers-tab', event)" data-i18n="tabCustomers">👥 Wateja & Mafundi</button>
+        <button class="tab-btn active" onclick="switchTab('sales-tab', event)" data-i18n="tabSales">&#128722; Mauzo (POS / Cart)</button>
+        <button class="tab-btn" onclick="switchTab('debts-tab', event)" data-i18n="tabDebts">&#128179; Madeni &amp; Malipo</button>
+        <button class="tab-btn" onclick="switchTab('dashboard-tab', event)" data-i18n="tabReports">&#128202; Dashboard &amp; Ripoti</button>
+        <button class="tab-btn" onclick="switchTab('inventory-tab', event)" data-i18n="tabStock">&#128230; Stoki (Inventory)</button>
+        <button class="tab-btn" onclick="switchTab('customers-tab', event)" data-i18n="tabCustomers">&#128101; Wateja &amp; Mafundi</button>
     </div>
-
-    <!-- TAB 1: MAUZO -->
     <div id="sales-tab" class="tab-content active">
         <div class="grid" style="grid-template-columns: 1fr 1.5fr;">
             <div class="card">
-                <h3 data-i18n="selectProduct">Chagua Spea / Bidhaa</h3>
-                <br>
+                <h3 data-i18n="selectProduct">Chagua Bidhaa / Mazao</h3><br>
                 <div class="form-group">
                     <label data-i18n="searchProduct">Tafuta Bidhaa:</label>
                     <select id="pos-item-select"></select>
@@ -252,225 +273,170 @@
                 <div class="form-group" style="margin-top: 10px;">
                     <label data-i18n="qty">Idadi (Qty):</label>
                     <input type="number" id="pos-qty" min="1" value="1">
-                </div>
-                <br>
+                </div><br>
                 <button class="btn" onclick="addToCart()" data-i18n="addCart">+ Weka Kwenye Cart</button>
             </div>
-
             <div class="card">
-                <h3 data-i18n="cartTitle">Orodha ya Mauzo (Cart)</h3>
-                <br>
+                <h3 data-i18n="cartTitle">Orodha ya Mauzo (Cart)</h3><br>
                 <table>
-                    <thead>
-                        <tr>
-                            <th data-i18n="thItem">Item</th>
-                            <th data-i18n="thPrice">Bei</th>
-                            <th data-i18n="thQty">Qty</th>
-                            <th data-i18n="thTotal">Jumla</th>
-                        </tr>
-                    </thead>
+                    <thead><tr>
+                        <th data-i18n="thItem">Item</th>
+                        <th data-i18n="thPrice">Bei</th>
+                        <th data-i18n="thQty">Qty</th>
+                        <th data-i18n="thTotal">Jumla</th>
+                    </tr></thead>
                     <tbody id="cart-table-body"></tbody>
                 </table>
-                <div style="font-size: 18px; font-weight: bold; color: var(--primary); text-align: right; margin-top: 10px;">
+                <div style="font-size: 18px; font-weight: bold; color: var(--primary); text-align: right; margin-top: 12px;">
                     <span data-i18n="grandTotal">Jumla Kuu:</span> TSh <span id="cart-grand-total">0</span>
-                </div>
-                <br>
-                <button class="btn btn-success" style="width: 100%; padding: 12px;" onclick="processCheckout()" data-i18n="completeCheckout">Kamilisha Mauzo</button>
+                </div><br>
+                <button class="btn btn-success" style="width: 100%; padding: 13px;" onclick="processCheckout()" data-i18n="completeCheckout">Kamilisha Mauzo</button>
             </div>
         </div>
     </div>
-
     <div id="debts-tab" class="tab-content"><div class="card"><h3 data-i18n="debtsSec">Sehemu ya Madeni</h3></div></div>
     <div id="dashboard-tab" class="tab-content"><div class="card"><h3 data-i18n="reportsSec">Ripoti za Mauzo</h3></div></div>
     <div id="inventory-tab" class="tab-content"><div class="card"><h3 data-i18n="stockSec">Usimamizi wa Stoki</h3></div></div>
     <div id="customers-tab" class="tab-content"><div class="card"><h3 data-i18n="customersSec">Orodha ya Wateja</h3></div></div>
 </div>
 
-<!-- PAYMENT MODAL -->
 <div id="subscription-modal" class="modal">
     <div class="modal-box">
-        <h3 data-i18n="modalPayTitle">Lipia Kifurushi cha HALLTAN BUSINESS POS</h3>
-        <br>
-        <p style="font-size: 12px; color: #64748b;" data-i18n="modalPayDesc">Tuma malipo kwa Lipa Namba, kisha ingiza Kumbukumbu ya Muamala (Transaction ID) hapa chini:</p>
-        <br>
-        <div class="form-group">
-            <label data-i18n="lblLipaNo">Namba ya Malipo (Lipa Namba):</label>
-            <input type="text" value="5544332 - HALLTAN BUSINESS POS" readonly style="font-weight: bold; background: #f1f5f9;">
+        <h3 data-i18n="modalPayTitle">Lipia Kifurushi cha HALLTAN BUSINESS POS</h3><br>
+        <p style="font-size: 12.5px; color: var(--text-muted);" data-i18n="modalPayDesc">Tuma malipo kwa njia yoyote hapa chini, kisha ingiza Kumbukumbu ya Muamala (Transaction ID):</p><br>
+        <div class="pay-methods-modal">
+            <div class="pay-method-line">
+                <span class="pm-name">&#128179; <span data-i18n="lblLipaNo">Lipa Namba</span></span>
+                <span style="display:flex; align-items:center; gap:8px;"><span class="pm-val">21525070</span><button class="mini-copy" onclick="copyText('21525070')" data-i18n="copyBtn">Nakili</button></span>
+            </div>
+            <div class="pay-method-line">
+                <span class="pm-name">&#128241; Mixx by Yas</span>
+                <span style="display:flex; align-items:center; gap:8px;"><span class="pm-val">0778 650 250</span><button class="mini-copy" onclick="copyText('0778650250')" data-i18n="copyBtn">Nakili</button></span>
+            </div>
+            <div class="pay-method-line">
+                <span class="pm-name">&#128241; M-Pesa</span>
+                <span style="display:flex; align-items:center; gap:8px;"><span class="pm-val">0755 660 645</span><button class="mini-copy" onclick="copyText('0755660645')" data-i18n="copyBtn">Nakili</button></span>
+            </div>
         </div>
-        <br>
+        <p style="font-size: 11.5px; color: var(--text-muted); text-align:center; margin: 6px 0;">GERALD MAPINDUZI HALL &middot; NMB &middot; TIPS &middot; Visa &middot; Mastercard &middot; UnionPay</p><br>
         <div class="form-group">
             <label>Transaction ID:</label>
             <input type="text" id="pay-tx-id" placeholder="Mfano: QGH8837262">
-        </div>
-        <br>
-        <button class="btn btn-success" style="width: 100%;" onclick="submitSubscriptionPayment()" data-i18n="btnConfirmPay">Thibitisha Malipo</button>
-        <br><br>
-        <button class="btn" style="width: 100%; background: #64748b;" onclick="closeSubscriptionModal()" data-i18n="btnClose">Funga</button>
+        </div><br>
+        <button class="btn btn-success" style="width: 100%;" onclick="submitSubscriptionPayment()" data-i18n="btnConfirmPay">Thibitisha Malipo</button><br><br>
+        <button class="btn" style="width: 100%; background: var(--text-muted);" onclick="closeSubscriptionModal()" data-i18n="btnClose">Funga</button>
     </div>
 </div>
 
+<footer>
+    <div class="foot-brand">&#127807; HALLTAN BUSINESS POS</div>
+    <div data-i18n="footTagline">Usimamizi wa Mauzo, Stoki na Madeni &mdash; Halltan, Tanzania</div>
+    <div class="foot-contacts">
+        <a href="https://wa.me/255778650250" target="_blank">WhatsApp: 0778 650 250</a>
+        <a href="tel:+255755660645">Simu: 0755 660 645</a>
+        <a href="mailto:halltanveggies@gmail.com">halltanveggies@gmail.com</a>
+    </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
 <script>
-    // --- LANGUAGE DICTIONARIES ---
     const translations = {
         sw: {
-            noAccount: "Bila Akaunti",
-            login: "Ingia (Login)",
-            logout: "Toka (Logout)",
+            noAccount: "Bila Akaunti", login: "Ingia (Login)", logout: "Toka (Logout)",
+            heroBadge: "Siku 14 za Jaribio Bure",
             heroSubtitle: "Mfumo wa Kijanja wa Usimamizi wa Mauzo, Stoki na Madeni. Jisajili kwa Gmail na upate Siku 14 za Jaribio Bure papo hapo!",
-            startNow: "Anza Kutumia Sasa",
-            authSubtitle: "Ingia au Jisajili moja kwa moja kwa akaunti yako ya Gmail",
+            startNow: "Anza Kutumia Sasa", authSubtitle: "Ingia au Jisajili moja kwa moja kwa akaunti yako ya Gmail",
             btnGoogle: "Ingia kwa kutumia Google",
+            trust1: "Salama & Binafsi", trust2: "Cloud Backup", trust3: "Rahisi Kutumia",
+            lipaStripLabel: "\uD83D\uDCB3 Lipa / Pay \u2014 Lipa Namba", copyBtn: "Nakili",
             pricingHeading: "Chagua Kifurushi Chako Rafiki (Subscription Tiers)",
             pricingSubtitle: "Badilisha muda wa kulipia upate punguzo kubwa la bei",
-            dur1: "Mwezi 1",
-            dur3: "Miezi 3",
-            dur6: "Miezi 6 (Punguzo 10%)",
-            dur12: "Mwaka 1 / Miezi 12 (Punguzo 20%)",
-            perMonth: "/ Mwezi",
-            popularTag: "Inayosauriwa Zaidi",
+            dur1: "Mwezi 1", dur3: "Miezi 3", dur6: "Miezi 6 (Punguzo 10%)", dur12: "Mwaka 1 / Miezi 12 (Punguzo 20%)",
+            perMonth: "/ Mwezi", popularTag: "Inayosauriwa Zaidi",
             smallDesc: "Inafaa kwa maduka madogo na wauzaji wa rejareja.",
-            smallF1: "Duka 1 Moja Tu",
-            smallF2: "Mtumiaji 1 (Mwenyewe)",
-            smallF3: "Kuhifadhi Bidhaa Hadi 300",
-            smallF4: "Usimamizi wa Mauzo & Madeni",
-            smallF5: "Ripoti za Kawaida",
+            smallF1: "Duka 1 Moja Tu", smallF2: "Mtumiaji 1 (Mwenyewe)", smallF3: "Kuhifadhi Bidhaa Hadi 300", smallF4: "Usimamizi wa Mauzo & Madeni", smallF5: "Ripoti za Kawaida",
             medDesc: "Inafaa kwa maduka yenye mzunguko mkubwa wa mauzo.",
-            medF1: "Maduka Hadi 2 (Multi-Branch)",
-            medF2: "Watumiaji Hadi 3",
-            medF3: "Bidhaa Bila Kikomo (Unlimited)",
-            medF4: "Risiti za WhatsApp & Kujiprint",
-            medF5: "Ripoti za Faida/Hasara (Profit & Loss)",
+            medF1: "Maduka Hadi 2 (Multi-Branch)", medF2: "Watumiaji Hadi 3", medF3: "Bidhaa Bila Kikomo (Unlimited)", medF4: "Risiti za WhatsApp & Kujiprint", medF5: "Ripoti za Faida/Hasara (Profit & Loss)",
             entDesc: "Kwa makampuni na maduka yenye matawi mengi.",
-            entF1: "Maduka Bila Kikomo",
-            entF2: "Watumiaji Bila Kikomo",
-            entF3: "Custom Branding (Nembo Yako)",
-            entF4: "Daily Automatic Backup",
-            entF5: "Dedicated Priority Support 24/7",
-            selectPlan: "Chagua Kifurushi",
-            lblPlan: "Kifurushi Chako:",
-            lblStatus: "Hali:",
-            lblExpires: "Itaisha:",
-            btnUpgrade: "Ongeza Salio / Upgrade",
-            tabSales: "🛒 Mauzo (POS / Cart)",
-            tabDebts: "💳 Madeni & Malipo",
-            tabReports: "📊 Dashboard & Ripoti",
-            tabStock: "📦 Stoki (Inventory)",
-            tabCustomers: "👥 Wateja & Mafundi",
-            selectProduct: "Chagua Spea / Bidhaa",
-            searchProduct: "Tafuta Bidhaa:",
-            qty: "Idadi (Qty):",
-            addCart: "+ Weka Kwenye Cart",
-            cartTitle: "Orodha ya Mauzo (Cart)",
-            thItem: "Item",
-            thPrice: "Bei",
-            thQty: "Qty",
-            thTotal: "Jumla",
-            grandTotal: "Jumla Kuu:",
-            completeCheckout: "Kamilisha Mauzo",
-            debtsSec: "Sehemu ya Madeni",
-            reportsSec: "Ripoti za Mauzo",
-            stockSec: "Usimamizi wa Stoki",
-            customersSec: "Orodha ya Wateja",
+            entF1: "Maduka Bila Kikomo", entF2: "Watumiaji Bila Kikomo", entF3: "Custom Branding (Nembo Yako)", entF4: "Daily Automatic Backup", entF5: "Dedicated Priority Support 24/7",
+            selectPlan: "Chagua Kifurushi", lblPlan: "Kifurushi Chako:", lblStatus: "Hali:", lblExpires: "Itaisha:", btnUpgrade: "Ongeza Salio / Upgrade",
+            tabSales: "\uD83D\uDED2 Mauzo (POS / Cart)", tabDebts: "\uD83D\uDCB3 Madeni & Malipo", tabReports: "\uD83D\uDCCA Dashboard & Ripoti", tabStock: "\uD83D\uDCE6 Stoki (Inventory)", tabCustomers: "\uD83D\uDC65 Wateja & Mafundi",
+            selectProduct: "Chagua Bidhaa / Mazao", searchProduct: "Tafuta Bidhaa:", qty: "Idadi (Qty):", addCart: "+ Weka Kwenye Cart",
+            cartTitle: "Orodha ya Mauzo (Cart)", thItem: "Item", thPrice: "Bei", thQty: "Qty", thTotal: "Jumla", grandTotal: "Jumla Kuu:", completeCheckout: "Kamilisha Mauzo",
+            debtsSec: "Sehemu ya Madeni", reportsSec: "Ripoti za Mauzo", stockSec: "Usimamizi wa Stoki", customersSec: "Orodha ya Wateja",
             modalPayTitle: "Lipia Kifurushi cha HALLTAN BUSINESS POS",
-            modalPayDesc: "Tuma malipo kwa Lipa Namba, kisha ingiza Kumbukumbu ya Muamala (Transaction ID) hapa chini:",
-            lblLipaNo: "Namba ya Malipo (Lipa Namba):",
-            btnConfirmPay: "Thibitisha Malipo",
-            btnClose: "Funga"
+            modalPayDesc: "Tuma malipo kwa njia yoyote hapa chini, kisha ingiza Kumbukumbu ya Muamala (Transaction ID):",
+            lblLipaNo: "Lipa Namba", btnConfirmPay: "Thibitisha Malipo", btnClose: "Funga",
+            footTagline: "Usimamizi wa Mauzo, Stoki na Madeni \u2014 Halltan, Tanzania"
         },
         en: {
-            noAccount: "No Account",
-            login: "Login",
-            logout: "Logout",
+            noAccount: "No Account", login: "Login", logout: "Logout",
+            heroBadge: "14-Day Free Trial",
             heroSubtitle: "Smart Point of Sale System for Sales, Inventory & Debt Management. Sign in with Gmail and get a 14-Day Free Trial instantly!",
-            startNow: "Get Started Now",
-            authSubtitle: "Sign in or Sign up instantly using your Gmail account",
+            startNow: "Get Started Now", authSubtitle: "Sign in or Sign up instantly using your Gmail account",
             btnGoogle: "Sign in with Google",
+            trust1: "Secure & Private", trust2: "Cloud Backup", trust3: "Easy to Use",
+            lipaStripLabel: "\uD83D\uDCB3 Lipa / Pay \u2014 Payment Number", copyBtn: "Copy",
             pricingHeading: "Choose Your Flexible Plan (Subscription Tiers)",
             pricingSubtitle: "Select longer subscription periods to enjoy higher discounts",
-            dur1: "1 Month",
-            dur3: "3 Months",
-            dur6: "6 Months (10% Off)",
-            dur12: "1 Year / 12 Months (20% Off)",
-            perMonth: "/ Month",
-            popularTag: "Most Popular Choice",
+            dur1: "1 Month", dur3: "3 Months", dur6: "6 Months (10% Off)", dur12: "1 Year / 12 Months (20% Off)",
+            perMonth: "/ Month", popularTag: "Most Popular Choice",
             smallDesc: "Ideal for small retail shops and micro-businesses.",
-            smallF1: "1 Single Shop Location",
-            smallF2: "1 User Access",
-            smallF3: "Store up to 300 Items",
-            smallF4: "Sales & Debt Management",
-            smallF5: "Standard Reports",
+            smallF1: "1 Single Shop Location", smallF2: "1 User Access", smallF3: "Store up to 300 Items", smallF4: "Sales & Debt Management", smallF5: "Standard Reports",
             medDesc: "Best for growing businesses with high sales volume.",
-            medF1: "Up to 2 Shops (Multi-Branch)",
-            medF2: "Up to 3 Users",
-            medF3: "Unlimited Inventory Items",
-            medF4: "WhatsApp & Printable Receipts",
-            medF5: "Profit & Loss Reports",
+            medF1: "Up to 2 Shops (Multi-Branch)", medF2: "Up to 3 Users", medF3: "Unlimited Inventory Items", medF4: "WhatsApp & Printable Receipts", medF5: "Profit & Loss Reports",
             entDesc: "For large enterprises & multi-branch businesses.",
-            entF1: "Unlimited Shop Locations",
-            entF2: "Unlimited Users",
-            entF3: "Custom Business Branding",
-            entF4: "Daily Automatic Cloud Backup",
-            entF5: "Dedicated Priority 24/7 Support",
-            selectPlan: "Choose Plan",
-            lblPlan: "Current Plan:",
-            lblStatus: "Status:",
-            lblExpires: "Expires:",
-            btnUpgrade: "Renew / Upgrade",
-            tabSales: "🛒 Sales (POS / Cart)",
-            tabDebts: "💳 Debts & Payments",
-            tabReports: "📊 Dashboard & Reports",
-            tabStock: "📦 Inventory (Stock)",
-            tabCustomers: "👥 Customers & Technicians",
-            selectProduct: "Select Spare / Product",
-            searchProduct: "Search Product:",
-            qty: "Quantity (Qty):",
-            addCart: "+ Add to Cart",
-            cartTitle: "Cart Summary",
-            thItem: "Item",
-            thPrice: "Price",
-            thQty: "Qty",
-            thTotal: "Total",
-            grandTotal: "Grand Total:",
-            completeCheckout: "Complete Sale",
-            debtsSec: "Debts & Credit Management",
-            reportsSec: "Sales & Performance Reports",
-            stockSec: "Stock & Inventory Management",
-            customersSec: "Customers & Technicians Directory",
+            entF1: "Unlimited Shop Locations", entF2: "Unlimited Users", entF3: "Custom Business Branding", entF4: "Daily Automatic Cloud Backup", entF5: "Dedicated Priority 24/7 Support",
+            selectPlan: "Choose Plan", lblPlan: "Current Plan:", lblStatus: "Status:", lblExpires: "Expires:", btnUpgrade: "Renew / Upgrade",
+            tabSales: "\uD83D\uDED2 Sales (POS / Cart)", tabDebts: "\uD83D\uDCB3 Debts & Payments", tabReports: "\uD83D\uDCCA Dashboard & Reports", tabStock: "\uD83D\uDCE6 Inventory (Stock)", tabCustomers: "\uD83D\uDC65 Customers & Technicians",
+            selectProduct: "Select Product / Produce", searchProduct: "Search Product:", qty: "Quantity (Qty):", addCart: "+ Add to Cart",
+            cartTitle: "Cart Summary", thItem: "Item", thPrice: "Price", thQty: "Qty", thTotal: "Total", grandTotal: "Grand Total:", completeCheckout: "Complete Sale",
+            debtsSec: "Debts & Credit Management", reportsSec: "Sales & Performance Reports", stockSec: "Stock & Inventory Management", customersSec: "Customers & Technicians Directory",
             modalPayTitle: "Pay Subscription for HALLTAN BUSINESS POS",
-            modalPayDesc: "Send payment to the Lipa Namba below, then enter your Transaction Reference ID:",
-            lblLipaNo: "Payment Number (Lipa Namba):",
-            btnConfirmPay: "Confirm Payment",
-            btnClose: "Close"
+            modalPayDesc: "Send payment via any method below, then enter your Transaction Reference ID:",
+            lblLipaNo: "Payment Number (Lipa Namba)", btnConfirmPay: "Confirm Payment", btnClose: "Close",
+            footTagline: "Sales, Inventory & Debt Management \u2014 Halltan, Tanzania"
         }
     };
 
     let currentLang = 'sw';
-
     function changeLanguage(lang) {
         currentLang = lang;
-        document.querySelectorAll('[data-i18n]').forEach(element => {
-            const key = element.getAttribute('data-i18n');
-            if (translations[lang][key]) {
-                element.innerText = translations[lang][key];
-            }
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[lang][key]) el.innerText = translations[lang][key];
         });
-
-        // Popular Badge attribute update
         const popularCard = document.getElementById('card-popular');
-        if (popularCard) {
-            popularCard.setAttribute('data-popular-label', translations[lang].popularTag);
-        }
-
-        // Update auth state label if user logged in
-        if (currentUser) {
-            document.getElementById('btn-auth-action').innerText = translations[lang].logout;
-        } else {
+        if (popularCard) popularCard.setAttribute('data-popular-label', translations[lang].popularTag);
+        if (currentUser) document.getElementById('btn-auth-action').innerText = translations[lang].logout;
+        else {
             document.getElementById('btn-auth-action').innerText = translations[lang].login;
             document.getElementById('user-display-email').innerText = translations[lang].noAccount;
         }
     }
 
-    // --- FIREBASE INITIALIZATION ---
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg; t.classList.add('show');
+        clearTimeout(window._toastTimer);
+        window._toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+    function copyText(txt) {
+        const clean = String(txt).replace(/\s/g, '');
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(clean).then(
+                () => showToast((currentLang === 'sw' ? "Imenakiliwa: " : "Copied: ") + clean),
+                () => fallbackCopy(clean));
+        } else fallbackCopy(clean);
+    }
+    function fallbackCopy(txt) {
+        const ta = document.createElement('textarea');
+        ta.value = txt; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); showToast((currentLang === 'sw' ? "Imenakiliwa: " : "Copied: ") + txt); } catch (e) {}
+        document.body.removeChild(ta);
+    }
+
     const firebaseConfig = {
         apiKey: "YOUR_FIREBASE_API_KEY",
         authDomain: "your-app.firebaseapp.com",
@@ -479,14 +445,12 @@
         messagingSenderId: "123456789",
         appId: "1:123456789:web:abcdef"
     };
-
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
     let currentUser = null;
     let selectedDurationMonths = 1;
-
     const basePrices = { Small: 15000, Medium: 35000, Enterprise: 75000 };
 
     auth.onAuthStateChanged(user => {
@@ -507,27 +471,16 @@
         const provider = new firebase.auth.GoogleAuthProvider();
         auth.signInWithPopup(provider).catch(error => alert("Login failed: " + error.message));
     }
-
-    function handleAuthAction() {
-        if (currentUser) auth.signOut();
-        else loginWithGoogle();
-    }
-
+    function handleAuthAction() { if (currentUser) auth.signOut(); else loginWithGoogle(); }
     function checkTenantSubscription(user) {
         db.collection('tenants').doc(user.uid).get().then(doc => {
-            if (doc.exists) {
-                showAppView(doc.data());
-            } else {
-                showLandingView();
-            }
+            if (doc.exists) showAppView(doc.data()); else showLandingView();
         });
     }
-
     function showLandingView() {
         document.getElementById('landing-viewport').style.display = 'block';
         document.getElementById('app-viewport').style.display = 'none';
     }
-
     function showAppView(tenantData) {
         document.getElementById('landing-viewport').style.display = 'none';
         document.getElementById('app-viewport').style.display = 'block';
@@ -536,50 +489,38 @@
             document.getElementById('current-status-display').innerText = tenantData.status || "Active";
         }
     }
-
     function setDuration(months, btn) {
         selectedDurationMonths = months;
         document.querySelectorAll('.duration-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-
         let discount = 1;
-        if(months === 6) discount = 0.90; 
-        if(months === 12) discount = 0.80; 
-
-        const perMonthText = translations[currentLang].perMonth;
-        document.getElementById('price-small').innerHTML = `TSh ${(basePrices.Small * discount).toLocaleString()} <span>${perMonthText}</span>`;
-        document.getElementById('price-medium').innerHTML = `TSh ${(basePrices.Medium * discount).toLocaleString()} <span>${perMonthText}</span>`;
-        document.getElementById('price-enterprise').innerHTML = `TSh ${(basePrices.Enterprise * discount).toLocaleString()} <span>${perMonthText}</span>`;
+        if(months === 6) discount = 0.90;
+        if(months === 12) discount = 0.80;
+        const p = translations[currentLang].perMonth;
+        document.getElementById('price-small').innerHTML = `TSh ${(basePrices.Small * discount).toLocaleString()} <span>${p}</span>`;
+        document.getElementById('price-medium').innerHTML = `TSh ${(basePrices.Medium * discount).toLocaleString()} <span>${p}</span>`;
+        document.getElementById('price-enterprise').innerHTML = `TSh ${(basePrices.Enterprise * discount).toLocaleString()} <span>${p}</span>`;
     }
-
     function selectTier(tierName) {
         if (!currentUser) {
             alert(currentLang === 'sw' ? "Tafadhali ingia na Google kwanza!" : "Please log in with Google first!");
-            loginWithGoogle();
-            return;
+            loginWithGoogle(); return;
         }
-
         let tenantPayload = {
-            ownerEmail: currentUser.email,
-            tier: tierName,
-            durationMonths: selectedDurationMonths,
-            status: "Active (Free Trial)",
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            ownerEmail: currentUser.email, tier: tierName, durationMonths: selectedDurationMonths,
+            status: "Active (Free Trial)", createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
-
         db.collection('tenants').doc(currentUser.uid).set(tenantPayload).then(() => {
             alert(currentLang === 'sw' ? `Hongera! Umefanikiwa kusajili Kifurushi cha ${tierName}` : `Success! Subscribed to ${tierName} plan`);
             showAppView(tenantPayload);
         });
     }
-
     function switchTab(tabId, e) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         e.currentTarget.classList.add('active');
     }
-
     function showPaymentModal() { document.getElementById('subscription-modal').style.display = 'flex'; }
     function closeSubscriptionModal() { document.getElementById('subscription-modal').style.display = 'none'; }
     function submitSubscriptionPayment() {
