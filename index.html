@@ -351,8 +351,11 @@
     <div id="sales-tab" class="tab-content active">
         <div class="pos-layout">
             <div class="card">
-                <h3 data-i18n="selectProduct">Find Product</h3>
-                <p style="font-size:12px;color:var(--text-muted);margin:4px 0 10px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+                    <h3 data-i18n="selectProduct" style="margin:0;">Find Product</h3>
+                    <span id="pos-clock" style="font-size:12.5px;font-weight:700;color:var(--primary-2);background:var(--accent-soft);border:1px solid var(--border);border-radius:8px;padding:5px 12px;white-space:nowrap;">—</span>
+                </div>
+                <p style="font-size:12px;color:var(--text-muted);margin:8px 0 10px;">
                     <span class="kbd">Type</span> to search · <span class="kbd">↑</span><span class="kbd">↓</span> to move · <span class="kbd">Enter</span> to add · scan a barcode + <span class="kbd">Enter</span>
                 </p>
                 <div class="search-wrap">
@@ -1651,13 +1654,17 @@
 
     /* ---------- Customer field helpers ---------- */
     function val(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+    function todayISO() {
+        const d = new Date(), pad = n => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    }
     function grabCustomer() { return { name: val('cust-name'), phone: val('cust-phone'), address: val('cust-address'), tin: val('cust-tin'), due: val('cust-due'), notes: val('cust-notes') }; }
     function setCustomer(c) {
         document.getElementById('cust-name').value = c.name || '';
         document.getElementById('cust-phone').value = c.phone || '';
         document.getElementById('cust-address').value = c.address || '';
         document.getElementById('cust-tin').value = c.tin || '';
-        document.getElementById('cust-due').value = c.due || '';
+        document.getElementById('cust-due').value = c.due || todayISO(); // defaults to today's system date, still editable
         document.getElementById('cust-notes').value = c.notes || '';
     }
     function clearCustomerFields() { setCustomer({}); }
@@ -2015,11 +2022,30 @@
     }
 
     // Boot
+    // Live system clock shown on the sales screen (follows the device date & time)
+    function startPosClock() {
+        const el = document.getElementById('pos-clock');
+        if (!el) return;
+        const pad = n => String(n).padStart(2, '0');
+        const days = { en: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], sw: ['Jumapili','Jumatatu','Jumanne','Jumatano','Alhamisi','Ijumaa','Jumamosi'] };
+        const tick = () => {
+            const d = new Date();
+            const dn = (days[currentLang] || days.en)[d.getDay()];
+            el.textContent = `🕐 ${dn} ${pad(d.getDate())}-${pad(d.getMonth()+1)}-${d.getFullYear()}  ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+        };
+        tick();
+        clearInterval(window._posClock);
+        window._posClock = setInterval(tick, 1000);
+    }
+
     window.addEventListener('DOMContentLoaded', async function () {
         changeLanguage(currentLang); // apply default language to hardcoded text
         await initStore();
         refreshActiveViews();
         updateSyncPill();
+        startPosClock();
+        const dueEl = document.getElementById('cust-due');
+        if (dueEl && !dueEl.value) dueEl.value = todayISO(); // prefill Due Date with today's system date
 
         // wire search box
         const search = document.getElementById('pos-search');
