@@ -535,6 +535,7 @@
             <br>
             <div class="stat-grid" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr));">
                 <div class="stat"><div class="l" data-i18n="obName">Business Name</div><div style="font-size:18px;font-weight:800;color:var(--primary);margin-top:4px;" id="acc-name">—</div></div>
+                <div class="stat"><div class="l" data-i18n="obPhone">Business Phone</div><div style="font-size:18px;font-weight:700;color:var(--primary-2);margin-top:4px;" id="acc-phone">—</div></div>
                 <div class="stat"><div class="l" data-i18n="obType">Business Type</div><div style="font-size:18px;font-weight:700;color:var(--primary-2);margin-top:4px;" id="acc-type">—</div></div>
                 <div class="stat"><div class="l" data-i18n="obLocation">Business Location</div><div style="font-size:18px;font-weight:700;color:var(--primary-2);margin-top:4px;" id="acc-location">—</div></div>
             </div>
@@ -632,6 +633,10 @@
             <div class="form-group" style="grid-column:1/-1;">
                 <label data-i18n="obName">Business Name</label>
                 <input type="text" id="ob-name" placeholder="e.g. Your Business Name">
+            </div>
+            <div class="form-group" style="grid-column:1/-1;">
+                <label data-i18n="obPhone">Business Phone</label>
+                <input type="text" id="ob-phone" placeholder="e.g. 07XX XXX XXX">
             </div>
             <div class="form-group">
                 <label data-i18n="obType">Business Type</label>
@@ -829,6 +834,7 @@
             errNamePrice: "Jina na bei vinahitajika", errName: "Jina linahitajika",
             onboardTitle: "Sanidi biashara yako", onboardDesc: "Tuambie kuhusu biashara yako. Taarifa hizi zitaonekana kwenye akaunti na invoice zako.",
             obName: "Jina la Biashara", obType: "Aina ya Biashara", obLocation: "Eneo la Biashara", obPayments: "Njia za Malipo (gusa kuchagua)",
+            obPhone: "Simu ya Biashara",
             obTypePick: "— Chagua —", obTypeRetail: "Rejareja / Duka", obTypeWholesale: "Jumla", obTypeSpareParts: "Spea za Magari", obTypePharmacy: "Duka la Dawa", obTypeRestaurant: "Mgahawa / Chakula", obTypeElectronics: "Elektroniki", obTypeServices: "Huduma", obTypeOther: "Nyingine",
             obFinish: "Maliza &amp; Ingia Dashboard", tabAccount: "⚙️ Akaunti",
             accountSec: "Wasifu wa Biashara", btnEditProfile: "✎ Hariri Wasifu", accountHint: "Taarifa hizi ziliwekwa wakati wa kujisajili na huonekana kwenye invoice zako. Unaweza kuzibadilisha wakati wowote.",
@@ -897,6 +903,7 @@
             errNamePrice: "Name and price are required", errName: "Name is required",
             onboardTitle: "Set up your business", onboardDesc: "Tell us about your business. These details appear on your account and invoices.",
             obName: "Business Name", obType: "Business Type", obLocation: "Business Location", obPayments: "Payment Methods (tap to select)",
+            obPhone: "Business Phone",
             obTypePick: "— Select —", obTypeRetail: "Retail / Duka", obTypeWholesale: "Wholesale", obTypeSpareParts: "Spare Parts", obTypePharmacy: "Pharmacy", obTypeRestaurant: "Restaurant / Food", obTypeElectronics: "Electronics", obTypeServices: "Services", obTypeOther: "Other",
             obFinish: "Finish &amp; Enter Dashboard", tabAccount: "⚙️ Account",
             accountSec: "Business Profile", btnEditProfile: "✎ Edit Profile", accountHint: "These details were set at sign-up and appear on your invoices. You can update them anytime.",
@@ -1153,7 +1160,7 @@
     const INVOICE_CONFIG = {
         businessName: "HALLTAN BUSINESS POS",
         line1: "HALLTAN",
-        line2: "TEL +255 778 650 250",
+        line2: "",          // set per-client from onboarding (business phone)
         city: "DAR ES SALAAM",
         country: "TANZANIA",
         tin: "", vrn: "", taxOffice: "",
@@ -1278,6 +1285,7 @@
         const p = getBusinessProfile();
         if (!p) return;
         if (p.name) INVOICE_CONFIG.businessName = p.name;
+        INVOICE_CONFIG.line2 = p.phone ? ('TEL: ' + p.phone) : '';
         if (p.location) INVOICE_CONFIG.city = p.location;
         if (Array.isArray(p.payments) && p.payments.length) INVOICE_CONFIG.payMethods = p.payments.join(' · ');
         INVOICE_CONFIG.payLipa = p.payNumber || '';
@@ -1288,6 +1296,7 @@
         set('biz-name-display', p.name);
         set('biz-type-display', p.type ? '· ' + p.type : '');
         set('acc-name', p.name);
+        set('acc-phone', p.phone);
         set('acc-type', p.type);
         set('acc-location', p.location);
         set('acc-paynumber', p.payNumber);
@@ -1306,6 +1315,7 @@
         onboardEditing = !!editing;
         const p = getBusinessProfile() || {};
         document.getElementById('ob-name').value = p.name || '';
+        document.getElementById('ob-phone').value = p.phone || '';
         document.getElementById('ob-type').value = p.type || '';
         document.getElementById('ob-location').value = p.location || '';
         document.getElementById('ob-paynumber').value = p.payNumber || '';
@@ -1333,13 +1343,14 @@
     }
     async function submitOnboarding() {
         const name = document.getElementById('ob-name').value.trim();
+        const phone = document.getElementById('ob-phone').value.trim();
         const type = document.getElementById('ob-type').value;
         const location = document.getElementById('ob-location').value.trim();
         const payNumber = document.getElementById('ob-paynumber').value.trim();
         const payName = document.getElementById('ob-payname').value.trim();
         const err = document.getElementById('onboard-err');
         if (!name) { err.innerText = t('errBizName'); err.style.display = 'block'; return; }
-        const profile = { name, type, location, payments: [...obSelectedPayments], payNumber, payName, logo: obLogoData || null, updatedAt: Date.now() };
+        const profile = { name, phone, type, location, payments: [...obSelectedPayments], payNumber, payName, logo: obLogoData || null, updatedAt: Date.now() };
         await saveBusinessProfile(profile);
 
         // If this profile is tied to a live tenant (Firebase), persist there too.
