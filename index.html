@@ -238,9 +238,6 @@
                 <span>&#9729;&#65039; <span data-i18n="trust2">Cloud Backup</span></span>
                 <span>&#9889; <span data-i18n="trust3">Rahisi Kutumia</span></span>
             </div>
-            <div style="margin-top:16px;border-top:1px dashed var(--border);padding-top:12px;">
-                <button onclick="openTestLogin()" style="background:none;border:none;color:var(--text-muted);font-size:12px;font-weight:600;cursor:pointer;text-decoration:underline;">&#128295; Test Login (Admin)</button>
-            </div>
         </div>
 
         <div class="pay-strip">
@@ -550,6 +547,21 @@
                     <div><div class="l" style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;" data-i18n="obPayName">Account Name</div><div style="font-weight:700;color:var(--primary);margin-top:2px;" id="acc-payname">—</div></div>
                 </div>
             </div>
+            <div class="card" style="box-shadow:none;border:1px solid var(--border);margin-top:14px;">
+                <div class="l" style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;" data-i18n="accountId">Account &amp; Identity</div>
+                <div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:12px;">
+                    <div><div class="l" style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;" data-i18n="signedInAs">Signed in as</div><div style="font-weight:700;color:var(--primary);margin-top:2px;" id="acc-email">—</div></div>
+                    <div><div class="l" style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;" data-i18n="accountRole">Role</div><div style="font-weight:700;color:var(--primary);margin-top:2px;" id="acc-role">—</div></div>
+                </div>
+                <div style="margin-top:12px;">
+                    <div class="l" style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;" data-i18n="accountUid">Your User ID (UID)</div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap;">
+                        <code id="acc-uid" style="font-size:12px;background:var(--accent-soft);border:1px solid var(--border);border-radius:6px;padding:5px 9px;word-break:break-all;">—</code>
+                        <button class="mini-btn" onclick="copyUid()" data-i18n="copyBtn">Copy</button>
+                    </div>
+                    <div style="font-size:11px;color:var(--text-muted);margin-top:6px;" data-i18n="uidHint">Needed once to grant platform-admin access in the Firebase Console.</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -593,28 +605,6 @@
 </footer>
 
 <div class="toast" id="toast"></div>
-
-<!-- TEST LOGIN MODAL (development only) -->
-<div id="test-login-modal" class="modal">
-    <div class="modal-box" style="width:340px;">
-        <h3>&#128295; Test Login</h3>
-        <p style="font-size:12px;color:var(--text-muted);margin:6px 0 16px;">Development access &mdash; bypasses Firebase for testing the dashboard.</p>
-        <div class="form-group">
-            <label>Username</label>
-            <input type="text" id="test-user" placeholder="username" autocomplete="off">
-        </div>
-        <br>
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="test-pass" placeholder="password" onkeydown="if(event.key==='Enter')doTestLogin()">
-        </div>
-        <div id="test-login-err" style="display:none;color:var(--danger);font-size:12px;margin-top:8px;">Invalid credentials.</div>
-        <br>
-        <button class="btn" style="width:100%;" onclick="doTestLogin()">Ingia (Login)</button>
-        <br><br>
-        <button class="btn" style="width:100%;background:var(--text-muted);" onclick="closeTestLogin()">Funga</button>
-    </div>
-</div>
 
 <!-- BUSINESS ONBOARDING MODAL (account creation) -->
 <div id="onboard-modal" class="modal">
@@ -843,6 +833,7 @@
             accountSec: "Wasifu wa Biashara", btnEditProfile: "✎ Hariri Wasifu", accountHint: "Taarifa hizi ziliwekwa wakati wa kujisajili na huonekana kwenye invoice zako. Unaweza kuzibadilisha wakati wowote.",
             obLogo: "Nembo ya Biashara (hiari)", obLogoHint: "PNG, JPG, WEBP au SVG · kisizidi 512KB", obLogoRemove: "Ondoa nembo",
             obPayNumber: "NMB Lipa Namba (NMB Pay Number)", obPayName: "Jina la Akaunti / Mpokeaji",
+            accountId: "Akaunti na Utambulisho", signedInAs: "Umeingia kama", accountRole: "Wadhifa", accountUid: "Kitambulisho chako (UID)", uidHint: "Kinahitajika mara moja kukupa uwezo wa msimamizi kwenye Firebase Console.",
             errBizName: "Jina la biashara linahitajika", errLogoSize: "Nembo ni kubwa mno (kikomo 512KB)"
         },
         en: {
@@ -912,6 +903,7 @@
             accountSec: "Business Profile", btnEditProfile: "✎ Edit Profile", accountHint: "These details were set at sign-up and appear on your invoices. You can update them anytime.",
             obLogo: "Business Logo (optional)", obLogoHint: "PNG, JPG, WEBP or SVG · max 512KB", obLogoRemove: "Remove logo",
             obPayNumber: "NMB Pay Number (NMB Lipa Namba)", obPayName: "Account / Recipient Name",
+            accountId: "Account & Identity", signedInAs: "Signed in as", accountRole: "Role", accountUid: "Your User ID (UID)", uidHint: "Needed once to grant platform-admin access in the Firebase Console.",
             errBizName: "Business name is required", errLogoSize: "Logo is too large (max 512KB)"
         }
     };
@@ -958,12 +950,12 @@
     }
 
     const firebaseConfig = {
-        apiKey: "YOUR_FIREBASE_API_KEY",
-        authDomain: "your-app.firebaseapp.com",
-        projectId: "your-app-id",
-        storageBucket: "your-app.appspot.com",
-        messagingSenderId: "123456789",
-        appId: "1:123456789:web:abcdef"
+        apiKey: "AIzaSyC9pvTOSGXnkN7U5apz6NAE2BSK-8olVsE",
+        authDomain: "halltan-pos.firebaseapp.com",
+        projectId: "halltan-pos",
+        storageBucket: "halltan-pos.firebasestorage.app",
+        messagingSenderId: "167427534798",
+        appId: "1:167427534798:web:1d377e26df7a7f41fd859f"
     };
     let auth = null, db = null, firebaseReady = false;
     try {
@@ -972,10 +964,11 @@
         db = firebase.firestore();
         firebaseReady = true;
     } catch (e) {
-        console.warn("Firebase not configured yet — test login still available.", e);
+        console.warn("Firebase failed to initialize.", e);
     }
 
     let currentUser = null;
+    let isPlatformAdmin = false;
     let selectedDurationMonths = 1;
     const basePrices = { Small: 15000, Medium: 35000, Enterprise: 75000 };
 
@@ -987,6 +980,7 @@
             checkTenantSubscription(user);
         } else {
             currentUser = null;
+            isPlatformAdmin = false;
             document.getElementById('user-display-email').innerText = translations[currentLang].noAccount;
             document.getElementById('btn-auth-action').innerText = translations[currentLang].login;
             showLandingView();
@@ -996,81 +990,105 @@
     function loginWithGoogle() {
         if (!firebaseReady) {
             alert(currentLang === 'sw'
-                ? "Firebase bado haijawekwa. Tumia 'Test Login (Admin)' kwa sasa."
-                : "Firebase isn't configured yet. Use 'Test Login (Admin)' for now.");
+                ? "Tatizo la muunganisho. Jaribu tena baadaye."
+                : "Connection problem. Please try again later.");
             return;
         }
         const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).catch(error => alert("Login failed: " + error.message));
+        auth.signInWithPopup(provider).catch(error => {
+            // Common on GitHub Pages before the domain is authorized
+            if (error && error.code === 'auth/unauthorized-domain') {
+                alert(currentLang === 'sw'
+                    ? "Kikoa hiki bado hakijaruhusiwa kwenye Firebase. Ongeza domain kwenye Authentication → Settings → Authorized domains."
+                    : "This domain isn't authorized in Firebase yet. Add it under Authentication → Settings → Authorized domains.");
+            } else if (error && error.code === 'auth/popup-closed-by-user') {
+                /* user closed the popup; ignore */
+            } else {
+                alert("Login failed: " + (error && error.message ? error.message : error));
+            }
+        });
     }
     function handleAuthAction() {
-        if (testSession) { testLogout(); return; }
         if (currentUser) auth.signOut(); else loginWithGoogle();
     }
 
-    /* ============================================================
-       TODO: REMOVE TEST LOGIN BEFORE PRODUCTION
-       Development-only bypass. Credentials are visible in page
-       source (not secure). Replace with Firebase Auth admin check
-       (specific admin email or custom claim) before going live.
-       Delete: this block, the #test-login-modal, and the
-       "Test Login (Admin)" button on the auth card.
-       ============================================================ */
-    /* --- TEST LOGIN (development only; replace with real auth later) --- */
-    const TEST_CREDENTIALS = { username: "halltan1", password: "1natllah" };
-    let testSession = false;
-
-    function openTestLogin() { document.getElementById('test-login-modal').style.display = 'flex'; }
-    function closeTestLogin() {
-        document.getElementById('test-login-modal').style.display = 'none';
-        document.getElementById('test-login-err').style.display = 'none';
-        document.getElementById('test-user').value = '';
-        document.getElementById('test-pass').value = '';
-    }
-    function doTestLogin() {
-        const u = document.getElementById('test-user').value.trim();
-        const p = document.getElementById('test-pass').value;
-        if (u === TEST_CREDENTIALS.username && p === TEST_CREDENTIALS.password) {
-            testSession = true;
-            closeTestLogin();
-            document.getElementById('user-display-email').innerText = u + " (Test)";
-            document.getElementById('btn-auth-action').innerText = translations[currentLang].logout;
-            // First-time test users fill business details; afterwards go straight in
-            if (!getBusinessProfile()) {
-                pendingTenant = { tier: "Medium (Test)", status: "Active (Test Mode)", ownerEmail: "test@halltan" };
-                openOnboarding(false);
-            } else {
-                showAppView({ tier: "Medium (Test)", status: "Active (Test Mode)" });
-            }
-        } else {
-            document.getElementById('test-login-err').style.display = 'block';
-        }
-    }
-    function testLogout() {
-        testSession = false;
-        document.getElementById('user-display-email').innerText = translations[currentLang].noAccount;
-        document.getElementById('btn-auth-action').innerText = translations[currentLang].login;
-        showLandingView();
-    }
+    // Look up the tenant record; sync profile down; check platform-admin status.
     function checkTenantSubscription(user) {
+        if (!firebaseReady || !db) { showLandingView(); return; }
+        // Is this user a platform admin? (whitelist doc keyed by UID)
+        db.collection('platformAdmins').doc(user.uid).get()
+            .then(d => { isPlatformAdmin = d.exists; })
+            .catch(() => { isPlatformAdmin = false; });
+
         db.collection('tenants').doc(user.uid).get().then(async doc => {
             if (doc.exists) {
                 const data = doc.data();
-                // Sync a saved business profile into the offline store so it displays
                 if (data.businessProfile && !getBusinessProfile()) {
                     await metaSet('businessProfile', data.businessProfile);
                 }
-                // Existing tenant with no profile yet → prompt onboarding once
+                // Pull the user's cloud data down into the local store (background)
+                cloudPullAll(user.uid).catch(e => console.warn('cloud pull', e));
                 if (!data.businessProfile && !getBusinessProfile()) {
                     pendingTenant = { tier: data.tier, status: data.status, ownerEmail: user.email };
                     openOnboarding(false);
                     return;
                 }
+                applyBusinessProfile();
                 showAppView(data);
             } else {
-                showLandingView();
+                // Brand-new user: create a tenant doc, then onboard.
+                const seedTenant = {
+                    ownerEmail: user.email,
+                    tier: "Small",
+                    status: "Active (Free Trial)",
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                try { await db.collection('tenants').doc(user.uid).set(seedTenant, { merge: true }); } catch (e) {}
+                pendingTenant = { tier: seedTenant.tier, status: seedTenant.status, ownerEmail: user.email };
+                openOnboarding(false);
             }
+        }).catch(e => {
+            console.warn('tenant check failed', e);
+            showLandingView();
         });
+    }
+
+    /* ---------------- Cloud sync (local-first, background) ----------------
+       IndexedDB stays the instant primary store. When signed in and online,
+       writes also push to Firestore under tenants/{uid}/..., and on login we
+       pull the cloud copy down. Paths match the published security rules. */
+    function cloudReady() { return firebaseReady && db && currentUser && navigator.onLine; }
+    function tenantRef() { return db.collection('tenants').doc(currentUser.uid); }
+
+    function cloudPush(store, obj) {
+        if (!cloudReady()) return;               // offline → stays local, syncs next login
+        if (store === 'meta') {
+            tenantRef().set({ [obj.id === 'businessProfile' ? 'businessProfile' : ('meta_' + obj.id)]: obj.value }, { merge: true })
+                .catch(e => console.warn('cloudPush meta', e));
+            return;
+        }
+        tenantRef().collection(store).doc(String(obj.id)).set(obj, { merge: true })
+            .catch(e => console.warn('cloudPush ' + store, e));
+    }
+    function cloudDelete(store, id) {
+        if (!cloudReady()) return;
+        tenantRef().collection(store).doc(String(id)).delete().catch(e => console.warn('cloudDelete', e));
+    }
+    async function cloudPullAll(uid) {
+        if (!firebaseReady || !db || !navigator.onLine) return;
+        for (const store of ['products', 'customers', 'sales']) {
+            try {
+                const snap = await db.collection('tenants').doc(uid).collection(store).get();
+                snap.forEach(docu => {
+                    const obj = docu.data();
+                    const i = mem[store].findIndex(x => String(x.id) === String(obj.id));
+                    if (i >= 0) mem[store][i] = obj; else mem[store].push(obj);
+                    idbPut(store, obj);
+                });
+            } catch (e) { console.warn('pull ' + store, e); }
+        }
+        // reflect the freshly pulled data
+        if (typeof refreshActiveViews === 'function') refreshActiveViews();
     }
     function showLandingView() {
         document.getElementById('landing-viewport').style.display = 'block';
@@ -1084,8 +1102,24 @@
             document.getElementById('current-status-display').innerText = tenantData.status || "Active";
         }
         applyBusinessProfile();
+        renderIdentity();
         if (typeof refreshActiveViews === 'function') refreshActiveViews();
         setTimeout(() => { const s = document.getElementById('pos-search'); if (s) s.focus(); }, 60);
+    }
+
+    // Fill the Account tab's identity card (email, UID, role)
+    function renderIdentity() {
+        const email = document.getElementById('acc-email');
+        const uidEl = document.getElementById('acc-uid');
+        const role = document.getElementById('acc-role');
+        if (email) email.innerText = (currentUser && currentUser.email) || '—';
+        if (uidEl) uidEl.innerText = (currentUser && currentUser.uid) || '—';
+        if (role) role.innerText = isPlatformAdmin ? (currentLang === 'sw' ? 'Msimamizi wa Mfumo' : 'Platform Admin')
+                                                   : (currentLang === 'sw' ? 'Mmiliki wa Biashara' : 'Business Owner');
+    }
+    function copyUid() {
+        const u = (currentUser && currentUser.uid) || '';
+        if (u) copyText(u);
     }
     function setDuration(months, btn) {
         selectedDurationMonths = months;
@@ -1101,12 +1135,12 @@
     }
     let pendingTenant = null;
     function selectTier(tierName) {
-        if (!currentUser && !testSession) {
+        if (!currentUser) {
             alert(currentLang === 'sw' ? "Tafadhali ingia na Google kwanza!" : "Please log in with Google first!");
             loginWithGoogle(); return;
         }
         pendingTenant = {
-            ownerEmail: (currentUser && currentUser.email) || 'test@halltan',
+            ownerEmail: currentUser.email,
             tier: tierName, durationMonths: selectedDurationMonths,
             status: "Active (Free Trial)"
         };
@@ -1243,7 +1277,7 @@
             await metaSet('seeded', true);
         }
     }
-    async function metaSet(k, v) { mem.meta[k] = v; await idbPut('meta', { id: k, value: v }); }
+    async function metaSet(k, v) { mem.meta[k] = v; await idbPut('meta', { id: k, value: v }); cloudPush('meta', { id: k, value: v }); }
     function uid(p) { return p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
     /* ---------- Business profile (set at account creation) ---------- */
@@ -1371,6 +1405,7 @@
         const i = mem.products.findIndex(x => x.id === prod.id);
         if (i >= 0) mem.products[i] = prod; else mem.products.push(prod);
         await idbPut('products', prod);
+        cloudPush('products', prod);
         if (!silent) { renderInventory(); refreshQuickChips(); }
         return prod;
     }
@@ -1378,6 +1413,7 @@
         if (!confirm(t('confirmDelProduct'))) return;
         mem.products = mem.products.filter(p => p.id !== id);
         await idbDel('products', id);
+        cloudDelete('products', id);
         renderInventory(); refreshQuickChips();
     }
 
@@ -1435,6 +1471,7 @@
         const i = mem.customers.findIndex(x => x.id === cust.id);
         if (i >= 0) mem.customers[i] = cust; else mem.customers.push(cust);
         await idbPut('customers', cust);
+        cloudPush('customers', cust);
         renderCustomers();
         return cust;
     }
@@ -1442,6 +1479,7 @@
         if (!confirm(t('confirmDelCust'))) return;
         mem.customers = mem.customers.filter(c => c.id !== id);
         await idbDel('customers', id);
+        cloudDelete('customers', id);
         renderCustomers();
     }
     let editingCustomerId = null;
@@ -1727,11 +1765,12 @@
         // decrement stock
         for (const it of cart) {
             const p = mem.products.find(x => x.id === it.id);
-            if (p) { p.stock = Math.max(0, p.stock - it.qty); p.dirty = true; await idbPut('products', p); }
+            if (p) { p.stock = Math.max(0, p.stock - it.qty); p.dirty = true; await idbPut('products', p); cloudPush('products', p); }
         }
 
         mem.sales.push(sale);
         await idbPut('sales', sale);
+        cloudPush('sales', sale);
 
         // auto-save customer if named & new
         if (cust.name && !mem.customers.some(c => c.name.toLowerCase() === cust.name.toLowerCase())) {
@@ -1804,6 +1843,7 @@
         s.paid += amt; s.balance = Math.max(0, s.grand - s.paid);
         s.status = s.balance === 0 ? 'paid' : 'partial'; s.dirty = true;
         await idbPut('sales', s);
+        cloudPush('sales', s);
         closeModal('payment-modal');
         renderDebts();
         showToast(t('payRecorded'));
