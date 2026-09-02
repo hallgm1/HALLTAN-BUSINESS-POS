@@ -246,23 +246,31 @@
         <div class="pay-strip">
             <div class="pay-head">
                 <div>
-                    <div class="lipa-label" data-i18n="lipaStripLabel">&#128179; Lipa / Pay &mdash; Lipa Namba</div>
+                    <div class="lipa-label" data-i18n="lipaStripLabel">&#128179; NMB LIPA / PAY NUMBER</div>
                     <div class="pay-lipa">
                         <span class="lipa-no" id="brand-lipa-no">21525070</span>
                         <button class="copy-btn" onclick="copyText('21525070')" data-i18n="copyBtn">Nakili</button>
                     </div>
-                    <div class="pay-owner">GERALD MAPINDUZI HALL</div>
                 </div>
             </div>
-            <div class="pay-methods">
-                <span class="method-chip">NMB Mkononi</span>
-                <span class="method-chip">TIPS</span>
-                <span class="method-chip">Mastercard</span>
-                <span class="method-chip">Visa</span>
-                <span class="method-chip">UnionPay</span>
-                <span class="method-chip">Mixx by Yas &middot; 0778 650 250</span>
-                <span class="method-chip">M-Pesa &middot; 0755 660 645</span>
+            <div class="pay-methods-modal" style="margin-top:14px;">
+                <div class="pay-method-line">
+                    <span class="pm-name">&#128241; Mixx by Yas</span>
+                    <span style="display:flex; align-items:center; gap:8px;"><span class="pm-val">0778 650 250</span><button class="mini-copy" onclick="copyText('0778650250')" data-i18n="copyBtn">Nakili</button></span>
+                </div>
+                <div class="pay-method-line">
+                    <span class="pm-name">&#128241; M-Pesa</span>
+                    <span style="display:flex; align-items:center; gap:8px;"><span class="pm-val">0755 660 645</span><button class="mini-copy" onclick="copyText('0755660645')" data-i18n="copyBtn">Nakili</button></span>
+                </div>
+                <div class="pay-method-line">
+                    <span class="pm-name">&#127974; NMB Bank &mdash; A/C</span>
+                    <span style="display:flex; align-items:center; gap:8px;"><span class="pm-val">20310042216</span><button class="mini-copy" onclick="copyText('20310042216')" data-i18n="copyBtn">Nakili</button></span>
+                </div>
             </div>
+            <div style="text-align:center;margin-top:10px;font-size:11.5px;color:var(--text-muted);line-height:1.7;">
+                NMB BANK PLC &middot; SWIFT: NMIBTZTZ<br>Branch 203, Dar es Salaam, Tanzania
+            </div>
+            <div class="pay-owner" style="text-align:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">GERALD MAPINDUZI HALL</div>
         </div>
 
         <div class="pricing-section">
@@ -623,7 +631,7 @@
             </div>
             <div class="form-group" style="grid-column:1/-1;">
                 <label data-i18n="obName">Business Name</label>
-                <input type="text" id="ob-name" placeholder="e.g. Halltan Traders">
+                <input type="text" id="ob-name" placeholder="e.g. Your Business Name">
             </div>
             <div class="form-group">
                 <label data-i18n="obType">Business Type</label>
@@ -649,11 +657,11 @@
             </div>
             <div class="form-group">
                 <label data-i18n="obPayNumber">NMB Pay Number (NMB Lipa Namba)</label>
-                <input type="text" id="ob-paynumber" placeholder="e.g. 21525070">
+                <input type="text" id="ob-paynumber" placeholder="Enter your NMB pay number">
             </div>
             <div class="form-group">
                 <label data-i18n="obPayName">Account / Recipient Name</label>
-                <input type="text" id="ob-payname" placeholder="e.g. JOHN DOE TRADERS">
+                <input type="text" id="ob-payname" placeholder="e.g. Your Account Name">
             </div>
         </div>
         <div id="onboard-err" style="display:none;color:var(--danger);font-size:12px;margin-top:8px;"></div>
@@ -767,7 +775,7 @@
             startNow: "Anza Kutumia Sasa", authSubtitle: "Ingia au Jisajili moja kwa moja kwa akaunti yako ya Gmail",
             btnGoogle: "Ingia kwa kutumia Google",
             trust1: "Salama & Binafsi", trust2: "Cloud Backup", trust3: "Rahisi Kutumia",
-            lipaStripLabel: "\uD83D\uDCB3 Lipa / Pay \u2014 Lipa Namba", copyBtn: "Nakili",
+            lipaStripLabel: "\uD83D\uDCB3 NMB LIPA / PAY NUMBER", copyBtn: "Nakili",
             pricingHeading: "Chagua Kifurushi Chako Rafiki (Subscription Tiers)",
             pricingSubtitle: "Badilisha muda wa kulipia upate punguzo kubwa la bei",
             dur1: "Mwezi 1", dur3: "Miezi 3", dur6: "Miezi 6 (Punguzo 10%)", dur12: "Mwaka 1 / Miezi 12 (Punguzo 20%)",
@@ -835,7 +843,7 @@
             startNow: "Get Started Now", authSubtitle: "Sign in or Sign up instantly using your Gmail account",
             btnGoogle: "Sign in with Google",
             trust1: "Secure & Private", trust2: "Cloud Backup", trust3: "Easy to Use",
-            lipaStripLabel: "\uD83D\uDCB3 Lipa / Pay \u2014 Payment Number", copyBtn: "Copy",
+            lipaStripLabel: "\uD83D\uDCB3 NMB LIPA / PAY NUMBER", copyBtn: "Copy",
             pricingHeading: "Choose Your Flexible Plan (Subscription Tiers)",
             pricingSubtitle: "Select longer subscription periods to enjoy higher discounts",
             dur1: "1 Month", dur3: "3 Months", dur6: "6 Months (10% Off)", dur12: "1 Year / 12 Months (20% Off)",
