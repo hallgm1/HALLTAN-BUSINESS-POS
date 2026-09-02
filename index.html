@@ -7,25 +7,27 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #14432a;
-            --primary-2: #1b5e38;
-            --accent: #2e9e57;
-            --accent-solid-hover: #247247;
-            --accent-soft: #e7f5ec;
-            --gold: #e0a92e;
+            /* Neutral professional business palette (slate + indigo) */
+            --primary: #1e293b;         /* slate 800 */
+            --primary-2: #334155;       /* slate 700 */
+            --accent: #4f46e5;          /* indigo 600 */
+            --accent-solid-hover: #4338ca;
+            --accent-soft: #eef2ff;     /* indigo 50 */
+            --gold: #d97706;            /* amber accent */
             --success: #16a34a;
             --warning: #d97706;
             --danger: #dc2626;
-            --bg: #f4f8f5;
+            --bg: #f8fafc;              /* slate 50 */
             --surface: #ffffff;
-            --border: #dfe9e2;
-            --text-dark: #12281c;
-            --text-muted: #5f7568;
+            --border: #e2e8f0;          /* slate 200 */
+            --text-dark: #1e293b;
+            --text-muted: #64748b;      /* slate 500 */
         }
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
         body { background-color: var(--bg); color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; }
@@ -36,20 +38,20 @@
         }
         nav .brand { display: flex; align-items: center; gap: 11px; font-size: 19px; font-weight: 800; letter-spacing: 0.3px; color: #fff; }
         nav .brand .logo-badge { width: 38px; height: 38px; border-radius: 11px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.22); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        nav .brand small { display:block; font-size: 10px; font-weight: 600; letter-spacing: 2px; color: #a7d8ba; text-transform: uppercase; margin-top: 1px; }
+        nav .brand small { display:block; font-size: 10px; font-weight: 600; letter-spacing: 2px; color: #c7d2fe; text-transform: uppercase; margin-top: 1px; }
         nav .user-nav-info { display: flex; align-items: center; gap: 12px; }
         .user-badge { background: rgba(255,255,255,0.10); padding: 6px 13px; border-radius: 20px; font-size: 13px; border: 1px solid rgba(255,255,255,0.18); }
         .lang-select { background: rgba(255,255,255,0.10); color: #fff; border: 1px solid rgba(255,255,255,0.20); padding: 6px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; outline: none; }
-        .lang-select option { color: #12281c; }
+        .lang-select option { color: #1e293b; }
         .landing-container { max-width: 1100px; margin: 0 auto; padding: 0 20px 40px; text-align: center; width: 100%; }
         .hero-wrap { background: radial-gradient(1200px 400px at 50% -140px, rgba(46,158,87,0.18), transparent 70%), linear-gradient(180deg, #ffffff 0%, var(--bg) 100%); padding: 56px 20px 40px; border-bottom: 1px solid var(--border); margin-bottom: 40px; }
-        .hero-badge { display: inline-flex; align-items: center; gap: 7px; background: var(--accent-soft); color: var(--primary-2); border: 1px solid #c7e6d3; padding: 6px 14px; border-radius: 30px; font-size: 12.5px; font-weight: 700; margin-bottom: 18px; }
+        .hero-badge { display: inline-flex; align-items: center; gap: 7px; background: var(--accent-soft); color: var(--primary-2); border: 1px solid #c7d2fe; padding: 6px 14px; border-radius: 30px; font-size: 12.5px; font-weight: 700; margin-bottom: 18px; }
         .hero-title { font-size: 40px; font-weight: 800; margin-bottom: 14px; color: var(--primary); line-height: 1.1; letter-spacing: -0.5px; }
         .hero-title .accent { color: var(--accent); }
         .hero-subtitle { font-size: 17px; color: var(--text-muted); max-width: 640px; margin: 0 auto; line-height: 1.55; }
         .auth-card { background: var(--surface); padding: 34px; border-radius: 16px; box-shadow: 0 12px 34px rgba(20,67,42,0.08); max-width: 440px; margin: -18px auto 20px auto; border: 1px solid var(--border); position: relative; z-index: 2; }
         .auth-card h3 { color: var(--primary); }
-        .btn-google { background: #fff; color: #333; border: 1.5px solid #cbd8ce; padding: 12px 20px; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; transition: all 0.2s; box-shadow: 0 2px 6px rgba(20,67,42,0.05); }
+        .btn-google { background: #fff; color: #333; border: 1.5px solid #cbd5e1; padding: 12px 20px; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; transition: all 0.2s; box-shadow: 0 2px 6px rgba(20,67,42,0.05); }
         .btn-google:hover { background: var(--accent-soft); border-color: var(--accent); }
         .trust-row { display: flex; justify-content: center; gap: 22px; flex-wrap: wrap; margin-top: 16px; font-size: 12.5px; color: var(--text-muted); }
         .trust-row span { display: inline-flex; align-items: center; gap: 6px; }
@@ -58,11 +60,11 @@
         .pay-lipa { display: flex; align-items: center; gap: 12px; }
         .pay-lipa .lipa-no { font-size: 24px; font-weight: 800; color: var(--primary); letter-spacing: 1px; }
         .lipa-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); }
-        .copy-btn { background: var(--accent-soft); color: var(--primary-2); border: 1px solid #c7e6d3; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
-        .copy-btn:hover { background: #d8eede; }
+        .copy-btn { background: var(--accent-soft); color: var(--primary-2); border: 1px solid #c7d2fe; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .copy-btn:hover { background: #e0e7ff; }
         .pay-owner { font-size: 13px; color: var(--text-muted); margin-top: 4px; font-weight: 600; }
         .pay-methods { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
-        .method-chip { font-size: 11.5px; font-weight: 600; color: var(--primary-2); background: #f0f6f2; border: 1px solid var(--border); border-radius: 7px; padding: 5px 10px; }
+        .method-chip { font-size: 11.5px; font-weight: 600; color: var(--primary-2); background: #f1f5f9; border: 1px solid var(--border); border-radius: 7px; padding: 5px 10px; }
         .pricing-section { margin-top: 48px; }
         .pricing-section h2 { color: var(--primary); font-size: 26px; }
         .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 25px; }
@@ -73,7 +75,7 @@
         .tier-name { font-size: 15px; font-weight: 800; color: var(--primary); letter-spacing: 1px; text-transform: uppercase; }
         .tier-price { font-size: 30px; font-weight: 800; margin: 14px 0; color: var(--accent); }
         .tier-price span { font-size: 14px; font-weight: 500; color: var(--text-muted); }
-        .tier-features { list-style: none; margin: 20px 0; font-size: 14px; color: #40564a; }
+        .tier-features { list-style: none; margin: 20px 0; font-size: 14px; color: #475569; }
         .tier-features li { margin-bottom: 11px; display: flex; align-items: flex-start; gap: 9px; }
         .tier-features li::before { content: "\2713"; color: var(--accent); font-weight: 800; flex-shrink: 0; }
         .duration-selector { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
@@ -92,7 +94,7 @@
         .card h3 { color: var(--primary); }
         form { display: grid; gap: 10px; }
         .form-group { display: flex; flex-direction: column; gap: 4px; }
-        label { font-size: 12px; font-weight: 700; color: #40564a; }
+        label { font-size: 12px; font-weight: 700; color: #475569; }
         input, select { padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.15s; }
         input:focus, select:focus { border-color: var(--accent); }
         button.btn { background: var(--accent); color: white; border: none; padding: 11px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: background 0.15s; }
@@ -109,18 +111,83 @@
         .modal-box { background: white; padding: 28px; width: 400px; max-width: 100%; border-radius: 14px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); max-height: 92vh; overflow-y: auto; }
         .modal-box h3 { color: var(--primary); }
         .pay-methods-modal { display: grid; gap: 8px; margin: 4px 0 6px; }
-        .pay-method-line { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: #f0f6f2; border: 1px solid var(--border); border-radius: 9px; padding: 10px 13px; font-size: 13px; }
+        .pay-method-line { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: #f1f5f9; border: 1px solid var(--border); border-radius: 9px; padding: 10px 13px; font-size: 13px; }
         .pay-method-line .pm-name { font-weight: 700; color: var(--primary-2); display: flex; align-items: center; gap: 7px; }
         .pay-method-line .pm-val { font-weight: 700; color: var(--text-dark); font-variant-numeric: tabular-nums; }
-        .mini-copy { background: var(--accent-soft); border: 1px solid #c7e6d3; color: var(--primary-2); border-radius: 6px; padding: 3px 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
-        footer { margin-top: auto; background: var(--primary); color: #b9d9c5; padding: 26px 22px; text-align: center; font-size: 13px; }
+        .mini-copy { background: var(--accent-soft); border: 1px solid #c7d2fe; color: var(--primary-2); border-radius: 6px; padding: 3px 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
+        footer { margin-top: auto; background: var(--primary); color: #cbd5e1; padding: 26px 22px; text-align: center; font-size: 13px; }
         footer .foot-brand { color: #fff; font-weight: 800; font-size: 15px; letter-spacing: 0.4px; margin-bottom: 6px; }
-        footer a { color: #8fd0a8; text-decoration: none; font-weight: 600; }
+        footer a { color: #a5b4fc; text-decoration: none; font-weight: 600; }
         footer a:hover { text-decoration: underline; }
         footer .foot-contacts { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
         .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--primary); color: #fff; padding: 12px 22px; border-radius: 10px; font-size: 13.5px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.25); opacity: 0; pointer-events: none; transition: all 0.25s; z-index: 2000; }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
         @media (max-width: 560px) { .hero-title { font-size: 30px; } nav .brand small { display: none; } }
+
+        /* ===== Modern POS components ===== */
+        .pos-layout { display: grid; grid-template-columns: 1fr 1.15fr; gap: 16px; align-items: start; }
+        @media (max-width: 820px) { .pos-layout { grid-template-columns: 1fr; } }
+        .search-wrap { position: relative; }
+        .search-wrap input { width: 100%; font-size: 16px; padding: 13px 14px; }
+        .search-results { list-style: none; margin: 6px 0 0; padding: 0; max-height: 340px; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; }
+        .search-results li { padding: 11px 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+        .search-results li:last-child { border-bottom: none; }
+        .search-results li.active, .search-results li:hover { background: var(--accent-soft); }
+        .search-results .sr-name { font-weight: 600; }
+        .search-results .sr-meta { font-size: 12px; color: var(--text-muted); }
+        .search-results .sr-price { font-weight: 700; color: var(--primary-2); white-space: nowrap; }
+        .search-results .sr-stock { font-size: 11px; padding: 2px 7px; border-radius: 10px; background: #f1f5f9; color: var(--text-muted); margin-left: 8px; }
+        .search-results .sr-stock.low { background: #fdeaea; color: var(--danger); }
+        .kbd { display:inline-block; font-size: 11px; font-family: monospace; background: #f1f5f9; border: 1px solid #cbd5e1; border-bottom-width: 2px; border-radius: 5px; padding: 1px 6px; color: #475569; }
+        .cart-line td { vertical-align: middle; }
+        .qty-stepper { display: inline-flex; align-items: center; border: 1px solid var(--border); border-radius: 7px; overflow: hidden; }
+        .qty-stepper button { border: none; background: #f1f5f9; width: 26px; height: 26px; cursor: pointer; font-weight: 700; color: var(--primary-2); font-size: 15px; }
+        .qty-stepper button:hover { background: var(--accent-soft); }
+        .qty-stepper input { width: 40px; text-align: center; border: none; border-left: 1px solid var(--border); border-right: 1px solid var(--border); padding: 4px 0; font-size: 14px; -moz-appearance: textfield; }
+        .qty-stepper input::-webkit-outer-spin-button, .qty-stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .line-disc { width: 62px; padding: 5px 6px; font-size: 12px; }
+        .icon-x { color: var(--danger); cursor: pointer; font-weight: 800; font-size: 17px; padding: 0 4px; }
+        .totals-panel { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-top: 12px; }
+        .totals-panel .row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 14px; }
+        .totals-panel .row.grand { font-size: 20px; font-weight: 800; color: var(--primary); border-top: 1px solid var(--border); margin-top: 6px; padding-top: 10px; }
+        .totals-panel .row .neg { color: var(--danger); }
+        .cart-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+        .cart-actions .btn { flex: 0 0 auto; padding: 8px 12px; font-size: 13px; }
+        .btn-ghost { background: #fff; color: var(--primary-2); border: 1.5px solid var(--border); }
+        .btn-ghost:hover { border-color: var(--accent); background: var(--accent-soft); }
+        .chip-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+        .chip { font-size: 12px; padding: 5px 11px; border-radius: 16px; background: var(--accent-soft); color: var(--primary-2); border: 1px solid #c7d2fe; cursor: pointer; font-weight: 600; }
+        .chip:hover { background: #e0e7ff; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .data-table th { background: var(--accent-soft); color: var(--primary-2); padding: 10px; text-align: left; font-weight: 700; position: sticky; top: 0; }
+        .data-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); }
+        .data-table tr:hover td { background: #f8fafc; }
+        .mini-btn { padding: 5px 10px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border); background: #fff; cursor: pointer; font-weight: 600; color: var(--primary-2); }
+        .mini-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+        .mini-btn.danger { color: var(--danger); }
+        .mini-btn.danger:hover { background: #fdeaea; border-color: var(--danger); }
+        .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+        .toolbar input[type="text"], .toolbar input[type="search"] { flex: 1; min-width: 160px; }
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 18px; }
+        .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+        .stat .v { font-size: 26px; font-weight: 800; color: var(--primary); }
+        .stat .l { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+        .stat.accent .v { color: var(--accent); }
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+        .empty-state .ico { font-size: 34px; margin-bottom: 8px; }
+        .badge { font-size: 11px; padding: 3px 9px; border-radius: 12px; font-weight: 700; }
+        .badge.paid { background: #dcfce7; color: #16794a; }
+        .badge.unpaid { background: #fdeaea; color: var(--danger); }
+        .badge.partial { background: #fdf3e0; color: #a86a12; }
+        .sync-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 5px 12px; border-radius: 16px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #fff; }
+        .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #34d399; box-shadow: 0 0 0 0 rgba(124,252,158,0.6); }
+        .sync-dot.offline { background: #ffcf5a; }
+        .modal-box.wide { width: 560px; }
+        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .tender-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 8px 0 4px; }
+        .tender-opt { border: 1.5px solid var(--border); border-radius: 9px; padding: 10px; text-align: center; cursor: pointer; font-weight: 600; font-size: 13px; }
+        .tender-opt.active { border-color: var(--accent); background: var(--accent-soft); color: var(--primary); }
+        .change-box { background: var(--accent-soft); border: 1px solid #c7d2fe; border-radius: 9px; padding: 12px 14px; margin-top: 10px; display: flex; justify-content: space-between; font-weight: 700; color: var(--primary); }
     </style>
 </head>
 <body>
@@ -129,16 +196,20 @@
     <div class="brand">
         <span class="logo-badge">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20 4C20 4 8.5 3.2 5 9.2c-2.6 4.5-.4 8.9 1.2 10.6C7 15 10 11.5 15 9.5c-4 3-6.8 6.4-7.6 11.2 3.2 1.1 7.9.8 10.6-3.6C21.5 12 20 4 20 4Z" fill="#8fd0a8"/>
-                <path d="M6.2 20.8C7 15 10 11.5 15 9.5" stroke="#14432a" stroke-width="1.3" stroke-linecap="round"/>
+                <rect x="3" y="4" width="18" height="14" rx="2" fill="#a5b4fc"/>
+                <rect x="3" y="4" width="18" height="4.2" rx="2" fill="#e0e7ff"/>
+                <rect x="6" y="11" width="7" height="1.7" rx="0.85" fill="#1e293b"/>
+                <rect x="6" y="14" width="4.5" height="1.7" rx="0.85" fill="#1e293b"/>
+                <circle cx="17" cy="14" r="1.5" fill="#1e293b"/>
             </svg>
         </span>
-        <span>HALLTAN BUSINESS POS<small>Halltan &middot; Tanzania</small></span>
+        <span>HALLTAN BUSINESS POS<small>Business Point of Sale</small></span>
     </div>
     <div class="user-nav-info" id="nav-user-area">
+        <span class="sync-pill" id="sync-pill" title="Local offline storage active"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">Offline-ready</span></span>
         <select class="lang-select" id="lang-selector" onchange="changeLanguage(this.value)">
-            <option value="sw" selected>&#127481;&#127487; Swahili</option>
-            <option value="en">&#127468;&#127463; English</option>
+            <option value="sw">&#127481;&#127487; Swahili</option>
+            <option value="en" selected>&#127468;&#127463; English</option>
         </select>
         <span class="user-badge" id="user-display-email" data-i18n="noAccount">Bila Akaunti</span>
         <button class="btn btn-outline" id="btn-auth-action" onclick="handleAuthAction()" data-i18n="login">Ingia (Login)</button>
@@ -148,7 +219,7 @@
 <div id="landing-viewport" style="width:100%;">
     <div class="hero-wrap">
         <div class="landing-container" style="padding-bottom:0;">
-            <div class="hero-badge">&#127807; <span data-i18n="heroBadge">Siku 14 za Jaribio Bure</span></div>
+            <div class="hero-badge">&#10024; <span data-i18n="heroBadge">Siku 14 za Jaribio Bure</span></div>
             <h1 class="hero-title">HALLTAN <span class="accent">BUSINESS POS</span></h1>
             <p class="hero-subtitle" data-i18n="heroSubtitle">Mfumo wa Kijanja wa Usimamizi wa Mauzo, Stoki na Madeni. Jisajili kwa Gmail na upate Siku 14 za Jaribio Bure papo hapo!</p>
         </div>
@@ -166,6 +237,9 @@
                 <span>&#128274; <span data-i18n="trust1">Salama &amp; Binafsi</span></span>
                 <span>&#9729;&#65039; <span data-i18n="trust2">Cloud Backup</span></span>
                 <span>&#9889; <span data-i18n="trust3">Rahisi Kutumia</span></span>
+            </div>
+            <div style="margin-top:16px;border-top:1px dashed var(--border);padding-top:12px;">
+                <button onclick="openTestLogin()" style="background:none;border:none;color:var(--text-muted);font-size:12px;font-weight:600;cursor:pointer;text-decoration:underline;">&#128295; Test Login (Admin)</button>
             </div>
         </div>
 
@@ -249,6 +323,9 @@
 <div id="app-viewport">
     <div class="subscription-banner">
         <div>
+            <span style="font-weight:800;color:var(--primary);" id="biz-name-display">—</span>
+            <span id="biz-type-display" style="color:var(--text-muted);"></span>
+            <br>
             <strong data-i18n="lblPlan">Kifurushi Chako:</strong> <span id="current-tier-display">Medium Business</span> |
             <strong data-i18n="lblStatus">Hali:</strong> <span id="current-status-display" style="color: var(--success); font-weight: bold;">Active</span> |
             <strong data-i18n="lblExpires">Itaisha:</strong> <span id="current-expiry-display">30 Nov 2026</span>
@@ -261,43 +338,208 @@
         <button class="tab-btn" onclick="switchTab('dashboard-tab', event)" data-i18n="tabReports">&#128202; Dashboard &amp; Ripoti</button>
         <button class="tab-btn" onclick="switchTab('inventory-tab', event)" data-i18n="tabStock">&#128230; Stoki (Inventory)</button>
         <button class="tab-btn" onclick="switchTab('customers-tab', event)" data-i18n="tabCustomers">&#128101; Wateja &amp; Mafundi</button>
+        <button class="tab-btn" onclick="switchTab('account-tab', event)" data-i18n="tabAccount">&#9881;&#65039; Account</button>
     </div>
     <div id="sales-tab" class="tab-content active">
-        <div class="grid" style="grid-template-columns: 1fr 1.5fr;">
+        <div class="pos-layout">
             <div class="card">
-                <h3 data-i18n="selectProduct">Chagua Bidhaa / Mazao</h3><br>
-                <div class="form-group">
-                    <label data-i18n="searchProduct">Tafuta Bidhaa:</label>
-                    <select id="pos-item-select"></select>
+                <h3 data-i18n="selectProduct">Find Product</h3>
+                <p style="font-size:12px;color:var(--text-muted);margin:4px 0 10px;">
+                    <span class="kbd">Type</span> to search · <span class="kbd">↑</span><span class="kbd">↓</span> to move · <span class="kbd">Enter</span> to add · scan a barcode + <span class="kbd">Enter</span>
+                </p>
+                <div class="search-wrap">
+                    <input type="text" id="pos-search" autocomplete="off" placeholder="Search name, SKU or scan barcode…" data-i18n-ph="searchPh">
+                    <ul class="search-results" id="pos-search-results"></ul>
                 </div>
-                <div class="form-group" style="margin-top: 10px;">
-                    <label data-i18n="qty">Idadi (Qty):</label>
-                    <input type="number" id="pos-qty" min="1" value="1">
-                </div><br>
-                <button class="btn" onclick="addToCart()" data-i18n="addCart">+ Weka Kwenye Cart</button>
+                <div class="chip-row" id="quick-chips"></div>
             </div>
+
             <div class="card">
-                <h3 data-i18n="cartTitle">Orodha ya Mauzo (Cart)</h3><br>
-                <table>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <h3 data-i18n="cartTitle">Current Sale</h3>
+                    <span style="font-size:12px;color:var(--text-muted);" id="cart-count">0 items</span>
+                </div>
+                <br>
+                <table class="data-table">
                     <thead><tr>
                         <th data-i18n="thItem">Item</th>
-                        <th data-i18n="thPrice">Bei</th>
-                        <th data-i18n="thQty">Qty</th>
-                        <th data-i18n="thTotal">Jumla</th>
+                        <th class="tr" data-i18n="thPrice">Price</th>
+                        <th style="text-align:center;" data-i18n="thQty">Qty</th>
+                        <th style="text-align:center;" data-i18n="thDisc">Disc%</th>
+                        <th class="tr" data-i18n="thTotal">Total</th>
+                        <th></th>
                     </tr></thead>
                     <tbody id="cart-table-body"></tbody>
                 </table>
-                <div style="font-size: 18px; font-weight: bold; color: var(--primary); text-align: right; margin-top: 12px;">
-                    <span data-i18n="grandTotal">Jumla Kuu:</span> TSh <span id="cart-grand-total">0</span>
-                </div><br>
-                <button class="btn btn-success" style="width: 100%; padding: 13px;" onclick="processCheckout()" data-i18n="completeCheckout">Kamilisha Mauzo</button>
+                <div id="cart-empty" class="empty-state"><div class="ico">🛒</div><span data-i18n="cartEmpty">Cart is empty — search and add a product</span></div>
+
+                <div class="cart-actions">
+                    <button class="btn btn-ghost" onclick="applySaleDiscount()" data-i18n="btnSaleDisc">＋ Sale discount</button>
+                    <button class="btn btn-ghost" onclick="holdSale()" data-i18n="btnHold">⏸ Hold / Park</button>
+                    <button class="btn btn-ghost" onclick="openParkedSales()"><span data-i18n="btnParked">Parked</span> (<span id="parked-count">0</span>)</button>
+                    <button class="btn btn-ghost" onclick="clearCart()" data-i18n="btnClearCart">🗑 Clear</button>
+                </div>
+
+                <div class="totals-panel">
+                    <div class="row"><span data-i18n="subtotal">Subtotal</span><span>TSh <span id="t-subtotal">0</span></span></div>
+                    <div class="row" id="t-disc-row" style="display:none;"><span data-i18n="discount">Discount</span><span class="neg">− TSh <span id="t-discount">0</span></span></div>
+                    <div class="row" id="t-tax-row"><span data-i18n="taxRow">VAT (18%)</span><span>TSh <span id="t-tax">0</span></span></div>
+                    <div class="row grand"><span data-i18n="grandTotal">TOTAL</span><span>TSh <span id="t-grand">0</span></span></div>
+                </div>
+
+                <br>
+                <div style="border-top:1px dashed var(--border);padding-top:12px;margin-bottom:6px;">
+                    <h3 style="font-size:15px;" data-i18n="custDetails">Customer Details (optional)</h3>
+                </div>
+                <div class="field-row">
+                    <div class="form-group"><label data-i18n="custName">Customer Name</label><input type="text" id="cust-name" placeholder="—"></div>
+                    <div class="form-group"><label data-i18n="custPhone">Phone</label><input type="text" id="cust-phone" placeholder="07XX XXX XXX"></div>
+                    <div class="form-group"><label data-i18n="custAddress">Address / Location</label><input type="text" id="cust-address" placeholder="—"></div>
+                    <div class="form-group"><label data-i18n="custTin">TIN (Business)</label><input type="text" id="cust-tin" placeholder="—"></div>
+                    <div class="form-group"><label data-i18n="custDue">Due Date</label><input type="date" id="cust-due"></div>
+                    <div class="form-group"><label data-i18n="custNotes">Notes</label><input type="text" id="cust-notes" placeholder="—"></div>
+                </div>
+                <br>
+                <button class="btn btn-success" style="width: 100%; padding: 14px; font-size:15px;" onclick="openCheckout()" data-i18n="completeCheckout">Complete Sale &amp; Invoice &nbsp;<span class="kbd" style="background:rgba(255,255,255,0.2);border-color:rgba(255,255,255,0.3);color:#fff;">F2</span></button>
             </div>
         </div>
     </div>
-    <div id="debts-tab" class="tab-content"><div class="card"><h3 data-i18n="debtsSec">Sehemu ya Madeni</h3></div></div>
-    <div id="dashboard-tab" class="tab-content"><div class="card"><h3 data-i18n="reportsSec">Ripoti za Mauzo</h3></div></div>
-    <div id="inventory-tab" class="tab-content"><div class="card"><h3 data-i18n="stockSec">Usimamizi wa Stoki</h3></div></div>
-    <div id="customers-tab" class="tab-content"><div class="card"><h3 data-i18n="customersSec">Orodha ya Wateja</h3></div></div>
+
+    <div id="inventory-tab" class="tab-content">
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                <h3 data-i18n="stockSec">Inventory &amp; Products</h3>
+                <button class="btn" onclick="openProductModal()" data-i18n="btnAddProduct">＋ Add Product</button>
+            </div>
+            <br>
+            <div class="toolbar">
+                <input type="search" id="inv-search" placeholder="Filter products…" oninput="renderInventory()" data-i18n-ph="filterPh">
+                <span style="font-size:12px;color:var(--text-muted);"><span id="inv-count">0</span> <span data-i18n="products">products</span></span>
+            </div>
+            <div style="overflow:auto;max-height:60vh;">
+                <table class="data-table">
+                    <thead><tr>
+                        <th data-i18n="thName">Name</th>
+                        <th data-i18n="thSku">SKU / Barcode</th>
+                        <th data-i18n="thCat">Category</th>
+                        <th class="tr" data-i18n="thPrice">Price</th>
+                        <th style="text-align:center;" data-i18n="thStock">Stock</th>
+                        <th></th>
+                    </tr></thead>
+                    <tbody id="inv-table-body"></tbody>
+                </table>
+                <div id="inv-empty" class="empty-state"><div class="ico">📦</div><span data-i18n="invEmpty">No products yet — add your first product</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="debts-tab" class="tab-content">
+        <div class="card">
+            <h3 data-i18n="debtsSec">Debts &amp; Credit</h3>
+            <p style="font-size:13px;color:var(--text-muted);margin-top:4px;" data-i18n="debtsHint">Unpaid and partially-paid invoices appear here. Record payments to clear balances.</p>
+            <br>
+            <div class="stat-grid">
+                <div class="stat"><div class="v">TSh <span id="debt-total">0</span></div><div class="l" data-i18n="outstanding">Outstanding</div></div>
+                <div class="stat"><div class="v" id="debt-count">0</div><div class="l" data-i18n="openInvoices">Open invoices</div></div>
+            </div>
+            <div style="overflow:auto;max-height:55vh;">
+                <table class="data-table">
+                    <thead><tr>
+                        <th data-i18n="thInv">Invoice</th>
+                        <th data-i18n="thCust">Customer</th>
+                        <th data-i18n="thDate">Date</th>
+                        <th class="tr" data-i18n="thTotal">Total</th>
+                        <th class="tr" data-i18n="thBalance">Balance</th>
+                        <th style="text-align:center;" data-i18n="thStatus">Status</th>
+                        <th></th>
+                    </tr></thead>
+                    <tbody id="debt-table-body"></tbody>
+                </table>
+                <div id="debt-empty" class="empty-state"><div class="ico">✅</div><span data-i18n="debtEmpty">No outstanding debts</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboard-tab" class="tab-content">
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                <h3 data-i18n="reportsSec">Sales Reports</h3>
+                <select id="report-range" onchange="renderReports()" style="max-width:180px;">
+                    <option value="today" data-i18n="rangeToday">Today</option>
+                    <option value="7" data-i18n="range7">Last 7 days</option>
+                    <option value="30" data-i18n="range30">Last 30 days</option>
+                    <option value="all" data-i18n="rangeAll">All time</option>
+                </select>
+            </div>
+            <br>
+            <div class="stat-grid">
+                <div class="stat accent"><div class="v">TSh <span id="rep-revenue">0</span></div><div class="l" data-i18n="revenue">Revenue</div></div>
+                <div class="stat"><div class="v" id="rep-sales">0</div><div class="l" data-i18n="salesCount">Sales</div></div>
+                <div class="stat"><div class="v">TSh <span id="rep-avg">0</span></div><div class="l" data-i18n="avgSale">Avg sale</div></div>
+                <div class="stat"><div class="v" id="rep-items">0</div><div class="l" data-i18n="itemsSold">Items sold</div></div>
+            </div>
+            <h3 style="font-size:15px;margin-bottom:10px;" data-i18n="topProducts">Top Products</h3>
+            <table class="data-table">
+                <thead><tr><th data-i18n="thName">Name</th><th style="text-align:center;" data-i18n="thQtySold">Qty sold</th><th class="tr" data-i18n="thRevenue">Revenue</th></tr></thead>
+                <tbody id="rep-top-body"></tbody>
+            </table>
+            <div id="rep-empty" class="empty-state"><div class="ico">📊</div><span data-i18n="repEmpty">No sales in this period yet</span></div>
+        </div>
+    </div>
+
+    <div id="customers-tab" class="tab-content">
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                <h3 data-i18n="customersSec">Customers</h3>
+                <button class="btn" onclick="openCustomerModal()" data-i18n="btnAddCustomer">＋ Add Customer</button>
+            </div>
+            <br>
+            <div class="toolbar">
+                <input type="search" id="cust-search" placeholder="Filter customers…" oninput="renderCustomers()" data-i18n-ph="filterCustPh">
+                <span style="font-size:12px;color:var(--text-muted);"><span id="cust-count">0</span> <span data-i18n="customersWord">customers</span></span>
+            </div>
+            <div style="overflow:auto;max-height:60vh;">
+                <table class="data-table">
+                    <thead><tr>
+                        <th data-i18n="thName">Name</th>
+                        <th data-i18n="thPhone">Phone</th>
+                        <th data-i18n="thAddress">Address</th>
+                        <th data-i18n="thTin">TIN</th>
+                        <th></th>
+                    </tr></thead>
+                    <tbody id="cust-table-body"></tbody>
+                </table>
+                <div id="cust-empty" class="empty-state"><div class="ico">👥</div><span data-i18n="custEmpty">No customers yet</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="account-tab" class="tab-content">
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                <div style="display:flex;align-items:center;gap:14px;">
+                    <div id="acc-logo" style="width:52px;height:52px;border-radius:12px;border:1px solid var(--border);background:var(--accent-soft);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-size:22px;color:var(--accent);">🏢</div>
+                    <h3 data-i18n="accountSec" style="margin:0;">Business Profile</h3>
+                </div>
+                <button class="btn" onclick="openOnboarding(true)" data-i18n="btnEditProfile">✎ Edit Profile</button>
+            </div>
+            <p style="font-size:13px;color:var(--text-muted);margin-top:4px;" data-i18n="accountHint">These details were set at sign-up and appear on your invoices. You can update them anytime.</p>
+            <br>
+            <div class="stat-grid" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr));">
+                <div class="stat"><div class="l" data-i18n="obName">Business Name</div><div style="font-size:18px;font-weight:800;color:var(--primary);margin-top:4px;" id="acc-name">—</div></div>
+                <div class="stat"><div class="l" data-i18n="obType">Business Type</div><div style="font-size:18px;font-weight:700;color:var(--primary-2);margin-top:4px;" id="acc-type">—</div></div>
+                <div class="stat"><div class="l" data-i18n="obLocation">Business Location</div><div style="font-size:18px;font-weight:700;color:var(--primary-2);margin-top:4px;" id="acc-location">—</div></div>
+            </div>
+            <div class="card" style="box-shadow:none;border-style:dashed;margin-top:4px;">
+                <div class="l" style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;" data-i18n="obPayments">Payment Methods</div>
+                <div class="chip-row" id="acc-payments" style="margin-top:8px;"></div>
+                <div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:14px;">
+                    <div><div class="l" style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;" data-i18n="obPayNumber">NMB Pay Number</div><div style="font-weight:700;color:var(--primary);margin-top:2px;" id="acc-paynumber">—</div></div>
+                    <div><div class="l" style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;" data-i18n="obPayName">Account Name</div><div style="font-weight:700;color:var(--primary);margin-top:2px;" id="acc-payname">—</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div id="subscription-modal" class="modal">
@@ -329,7 +571,7 @@
 </div>
 
 <footer>
-    <div class="foot-brand">&#127807; HALLTAN BUSINESS POS</div>
+    <div class="foot-brand">HALLTAN BUSINESS POS</div>
     <div data-i18n="footTagline">Usimamizi wa Mauzo, Stoki na Madeni &mdash; Halltan, Tanzania</div>
     <div class="foot-contacts">
         <a href="https://wa.me/255778650250" target="_blank">WhatsApp: 0778 650 250</a>
@@ -339,6 +581,182 @@
 </footer>
 
 <div class="toast" id="toast"></div>
+
+<!-- TEST LOGIN MODAL (development only) -->
+<div id="test-login-modal" class="modal">
+    <div class="modal-box" style="width:340px;">
+        <h3>&#128295; Test Login</h3>
+        <p style="font-size:12px;color:var(--text-muted);margin:6px 0 16px;">Development access &mdash; bypasses Firebase for testing the dashboard.</p>
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="test-user" placeholder="username" autocomplete="off">
+        </div>
+        <br>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="test-pass" placeholder="password" onkeydown="if(event.key==='Enter')doTestLogin()">
+        </div>
+        <div id="test-login-err" style="display:none;color:var(--danger);font-size:12px;margin-top:8px;">Invalid credentials.</div>
+        <br>
+        <button class="btn" style="width:100%;" onclick="doTestLogin()">Ingia (Login)</button>
+        <br><br>
+        <button class="btn" style="width:100%;background:var(--text-muted);" onclick="closeTestLogin()">Funga</button>
+    </div>
+</div>
+
+<!-- BUSINESS ONBOARDING MODAL (account creation) -->
+<div id="onboard-modal" class="modal">
+    <div class="modal-box">
+        <h3 data-i18n="onboardTitle">Set up your business</h3>
+        <p style="font-size:12.5px;color:var(--text-muted);margin:6px 0 16px;" data-i18n="onboardDesc">Tell us about your business. These details appear on your account and invoices.</p>
+        <div class="field-row">
+            <div class="form-group" style="grid-column:1/-1;">
+                <label data-i18n="obLogo">Business Logo (optional)</label>
+                <div style="display:flex;align-items:center;gap:14px;">
+                    <div id="ob-logo-preview" style="width:56px;height:56px;border-radius:12px;border:1px solid var(--border);background:var(--accent-soft);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-size:22px;color:var(--accent);">🏢</div>
+                    <div style="flex:1;">
+                        <input type="file" id="ob-logo-input" accept="image/png,image/jpeg,image/webp,image/svg+xml" onchange="handleLogoUpload(event)" style="font-size:13px;">
+                        <div style="font-size:11px;color:var(--text-muted);margin-top:3px;" data-i18n="obLogoHint">PNG, JPG, WEBP or SVG · max 512KB</div>
+                        <button type="button" id="ob-logo-remove" onclick="removeLogo()" style="display:none;background:none;border:none;color:var(--danger);font-size:12px;font-weight:600;cursor:pointer;padding:2px 0;margin-top:2px;" data-i18n="obLogoRemove">Remove logo</button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" style="grid-column:1/-1;">
+                <label data-i18n="obName">Business Name</label>
+                <input type="text" id="ob-name" placeholder="e.g. Halltan Traders">
+            </div>
+            <div class="form-group">
+                <label data-i18n="obType">Business Type</label>
+                <select id="ob-type">
+                    <option value="" data-i18n="obTypePick">— Select —</option>
+                    <option value="Retail" data-i18n="obTypeRetail">Retail / Duka</option>
+                    <option value="Wholesale" data-i18n="obTypeWholesale">Wholesale</option>
+                    <option value="Spare Parts" data-i18n="obTypeSpareParts">Spare Parts</option>
+                    <option value="Pharmacy" data-i18n="obTypePharmacy">Pharmacy</option>
+                    <option value="Restaurant" data-i18n="obTypeRestaurant">Restaurant / Food</option>
+                    <option value="Electronics" data-i18n="obTypeElectronics">Electronics</option>
+                    <option value="Services" data-i18n="obTypeServices">Services</option>
+                    <option value="Other" data-i18n="obTypeOther">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label data-i18n="obLocation">Business Location</label>
+                <input type="text" id="ob-location" placeholder="e.g. Kariakoo, Dar es Salaam">
+            </div>
+            <div class="form-group" style="grid-column:1/-1;">
+                <label data-i18n="obPayments">Payment Methods (tap to select)</label>
+                <div class="chip-row" id="ob-pay-chips" style="margin-top:2px;"></div>
+            </div>
+            <div class="form-group">
+                <label data-i18n="obPayNumber">NMB Pay Number (NMB Lipa Namba)</label>
+                <input type="text" id="ob-paynumber" placeholder="e.g. 21525070">
+            </div>
+            <div class="form-group">
+                <label data-i18n="obPayName">Account / Recipient Name</label>
+                <input type="text" id="ob-payname" placeholder="e.g. JOHN DOE TRADERS">
+            </div>
+        </div>
+        <div id="onboard-err" style="display:none;color:var(--danger);font-size:12px;margin-top:8px;"></div>
+        <br>
+        <button class="btn btn-success" style="width:100%;padding:13px;" onclick="submitOnboarding()" data-i18n="obFinish">Finish &amp; Enter Dashboard</button>
+    </div>
+</div>
+
+<!-- CHECKOUT / PAYMENT MODAL -->
+<div id="checkout-modal" class="modal">
+    <div class="modal-box">
+        <h3 data-i18n="checkoutTitle">Payment</h3>
+        <div class="totals-panel" style="margin-top:14px;">
+            <div class="row grand"><span data-i18n="amountDue">Amount due</span><span>TSh <span id="co-total">0</span></span></div>
+        </div>
+        <label style="margin-top:14px;display:block;" data-i18n="tenderMethod">Payment method</label>
+        <div class="tender-grid" id="tender-grid">
+            <div class="tender-opt active" data-m="Cash" onclick="pickTender(this)" data-i18n="mCash">Cash</div>
+            <div class="tender-opt" data-m="Mobile Money" onclick="pickTender(this)" data-i18n="mMobile">Mobile Money</div>
+            <div class="tender-opt" data-m="Card" onclick="pickTender(this)" data-i18n="mCard">Card</div>
+            <div class="tender-opt" data-m="Credit (Debt)" onclick="pickTender(this)" data-i18n="mCredit">Credit / Debt</div>
+            <div class="tender-opt" data-m="Bank" onclick="pickTender(this)" data-i18n="mBank">Bank</div>
+            <div class="tender-opt" data-m="Split" onclick="pickTender(this)" data-i18n="mSplit">Split</div>
+        </div>
+        <div id="cash-received-wrap" class="form-group" style="margin-top:10px;">
+            <label data-i18n="cashReceived">Amount received</label>
+            <input type="number" id="co-received" min="0" oninput="calcChange()" placeholder="0">
+        </div>
+        <div class="change-box" id="change-box" style="display:none;"><span data-i18n="change">Change</span><span>TSh <span id="co-change">0</span></span></div>
+        <div id="credit-note" style="display:none;font-size:12px;color:#a86a12;background:#fdf3e0;border-radius:8px;padding:10px;margin-top:10px;" data-i18n="creditNote">This sale will be recorded as an unpaid debt. Add customer details so you can track it.</div>
+        <br>
+        <button class="btn btn-success" style="width:100%;padding:13px;" onclick="confirmCheckout()" data-i18n="btnConfirmSale">Confirm &amp; Generate Invoice</button>
+        <br><br>
+        <button class="btn" style="width:100%;background:var(--text-muted);" onclick="closeModal('checkout-modal')" data-i18n="btnCancel">Cancel</button>
+    </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div id="product-modal" class="modal">
+    <div class="modal-box">
+        <h3 id="product-modal-title" data-i18n="addProductTitle">Add Product</h3>
+        <br>
+        <div class="field-row">
+            <div class="form-group" style="grid-column:1/-1;"><label data-i18n="pName">Name</label><input type="text" id="p-name" placeholder="e.g. Sukari 1kg"></div>
+            <div class="form-group"><label data-i18n="pSku">SKU / Barcode</label><input type="text" id="p-sku" placeholder="optional"></div>
+            <div class="form-group"><label data-i18n="pCat">Category</label><input type="text" id="p-cat" placeholder="e.g. Groceries"></div>
+            <div class="form-group"><label data-i18n="pPrice">Price (TSh)</label><input type="number" id="p-price" min="0" placeholder="0"></div>
+            <div class="form-group"><label data-i18n="pStock">Stock qty</label><input type="number" id="p-stock" min="0" placeholder="0"></div>
+        </div>
+        <div id="product-err" style="display:none;color:var(--danger);font-size:12px;margin-top:6px;"></div>
+        <br>
+        <button class="btn" style="width:100%;" onclick="saveProduct()" data-i18n="btnSave">Save</button>
+        <br><br>
+        <button class="btn" style="width:100%;background:var(--text-muted);" onclick="closeModal('product-modal')" data-i18n="btnCancel">Cancel</button>
+    </div>
+</div>
+
+<!-- CUSTOMER MODAL -->
+<div id="customer-modal" class="modal">
+    <div class="modal-box">
+        <h3 id="customer-modal-title" data-i18n="addCustomerTitle">Add Customer</h3>
+        <br>
+        <div class="field-row">
+            <div class="form-group" style="grid-column:1/-1;"><label data-i18n="cName">Name</label><input type="text" id="c-name" placeholder="Full name"></div>
+            <div class="form-group"><label data-i18n="cPhone">Phone</label><input type="text" id="c-phone" placeholder="07XX XXX XXX"></div>
+            <div class="form-group"><label data-i18n="cTin">TIN</label><input type="text" id="c-tin" placeholder="optional"></div>
+            <div class="form-group" style="grid-column:1/-1;"><label data-i18n="cAddress">Address</label><input type="text" id="c-address" placeholder="optional"></div>
+        </div>
+        <div id="customer-err" style="display:none;color:var(--danger);font-size:12px;margin-top:6px;"></div>
+        <br>
+        <button class="btn" style="width:100%;" onclick="saveCustomer()" data-i18n="btnSave">Save</button>
+        <br><br>
+        <button class="btn" style="width:100%;background:var(--text-muted);" onclick="closeModal('customer-modal')" data-i18n="btnCancel">Cancel</button>
+    </div>
+</div>
+
+<!-- PARKED SALES MODAL -->
+<div id="parked-modal" class="modal">
+    <div class="modal-box">
+        <h3 data-i18n="parkedTitle">Parked Sales</h3>
+        <br>
+        <div id="parked-list"></div>
+        <div id="parked-empty" class="empty-state"><div class="ico">⏸</div><span data-i18n="parkedEmpty">No parked sales</span></div>
+        <br>
+        <button class="btn" style="width:100%;background:var(--text-muted);" onclick="closeModal('parked-modal')" data-i18n="btnClose">Close</button>
+    </div>
+</div>
+
+<!-- RECORD PAYMENT MODAL -->
+<div id="payment-modal" class="modal">
+    <div class="modal-box">
+        <h3 data-i18n="recordPayTitle">Record Payment</h3>
+        <div class="totals-panel" style="margin-top:14px;">
+            <div class="row"><span data-i18n="invoiceWord">Invoice</span><span id="pay-inv-no">—</span></div>
+            <div class="row grand"><span data-i18n="balanceWord">Balance</span><span>TSh <span id="pay-balance">0</span></span></div>
+        </div>
+        <div class="form-group" style="margin-top:12px;"><label data-i18n="payAmount">Payment amount</label><input type="number" id="pay-amount" min="0" placeholder="0"></div>
+        <br>
+        <button class="btn btn-success" style="width:100%;" onclick="submitDebtPayment()" data-i18n="btnRecordPay">Record Payment</button>
+        <br><br>
+        <button class="btn" style="width:100%;background:var(--text-muted);" onclick="closeModal('payment-modal')" data-i18n="btnCancel">Cancel</button>
+    </div>
+</div>
 
 <script>
     const translations = {
@@ -364,11 +782,51 @@
             tabSales: "\uD83D\uDED2 Mauzo (POS / Cart)", tabDebts: "\uD83D\uDCB3 Madeni & Malipo", tabReports: "\uD83D\uDCCA Dashboard & Ripoti", tabStock: "\uD83D\uDCE6 Stoki (Inventory)", tabCustomers: "\uD83D\uDC65 Wateja & Mafundi",
             selectProduct: "Chagua Bidhaa / Mazao", searchProduct: "Tafuta Bidhaa:", qty: "Idadi (Qty):", addCart: "+ Weka Kwenye Cart",
             cartTitle: "Orodha ya Mauzo (Cart)", thItem: "Item", thPrice: "Bei", thQty: "Qty", thTotal: "Jumla", grandTotal: "Jumla Kuu:", completeCheckout: "Kamilisha Mauzo",
+            custDetails: "Taarifa za Mteja (Invoice)", custName: "Jina la Mteja", custPhone: "Simu", custAddress: "Anwani / Eneo", custTin: "TIN (Biashara)", custDue: "Tarehe ya Kulipa (Due)", custNotes: "Maelezo (Notes)",
             debtsSec: "Sehemu ya Madeni", reportsSec: "Ripoti za Mauzo", stockSec: "Usimamizi wa Stoki", customersSec: "Orodha ya Wateja",
             modalPayTitle: "Lipia Kifurushi cha HALLTAN BUSINESS POS",
             modalPayDesc: "Tuma malipo kwa njia yoyote hapa chini, kisha ingiza Kumbukumbu ya Muamala (Transaction ID):",
             lblLipaNo: "Lipa Namba", btnConfirmPay: "Thibitisha Malipo", btnClose: "Funga",
-            footTagline: "Usimamizi wa Mauzo, Stoki na Madeni \u2014 Halltan, Tanzania"
+            footTagline: "Usimamizi wa Mauzo, Stoki na Madeni \u2014 Halltan, Tanzania",
+            selectProduct: "Tafuta Bidhaa", searchPh: "Tafuta jina, SKU au scan barcode…", cartTitle: "Mauzo ya Sasa",
+            thItem: "Bidhaa", thPrice: "Bei", thQty: "Idadi", thDisc: "Punguzo%", thTotal: "Jumla",
+            cartEmpty: "Cart iko tupu — tafuta na uweke bidhaa", btnSaleDisc: "＋ Punguzo la mauzo", btnHold: "⏸ Weka Pembeni",
+            btnParked: "Zilizowekwa", btnClearCart: "🗑 Futa", subtotal: "Jumla ndogo", discount: "Punguzo", taxRow: "VAT (18%)", grandTotal: "JUMLA",
+            custDetails: "Taarifa za Mteja (hiari)", custName: "Jina la Mteja", custPhone: "Simu", custAddress: "Anwani / Eneo",
+            custTin: "TIN (Biashara)", custDue: "Tarehe ya Kulipa", custNotes: "Maelezo", completeCheckout: "Kamilisha Mauzo &amp; Invoice",
+            stockSec: "Bidhaa na Stoki", btnAddProduct: "＋ Ongeza Bidhaa", filterPh: "Chuja bidhaa…", products: "bidhaa",
+            thName: "Jina", thSku: "SKU / Barcode", thCat: "Aina", thStock: "Stoki", invEmpty: "Hakuna bidhaa bado — ongeza ya kwanza",
+            debtsSec: "Madeni na Mikopo", debtsHint: "Invoice ambazo hazijalipwa zitaonekana hapa. Rekodi malipo kupunguza deni.",
+            outstanding: "Deni lote", openInvoices: "Invoice wazi", thInv: "Invoice", thCust: "Mteja", thDate: "Tarehe", thBalance: "Baki",
+            thStatus: "Hali", debtEmpty: "Hakuna madeni", reportsSec: "Ripoti za Mauzo",
+            rangeToday: "Leo", range7: "Siku 7", range30: "Siku 30", rangeAll: "Muda wote",
+            revenue: "Mapato", salesCount: "Mauzo", avgSale: "Wastani", itemsSold: "Bidhaa zilizouzwa",
+            topProducts: "Bidhaa Zinazoongoza", thQtySold: "Idadi", thRevenue: "Mapato", repEmpty: "Hakuna mauzo katika kipindi hiki",
+            customersSec: "Wateja", btnAddCustomer: "＋ Ongeza Mteja", filterCustPh: "Chuja wateja…", customersWord: "wateja",
+            thAddress: "Anwani", thTin: "TIN", custEmpty: "Hakuna wateja bado",
+            checkoutTitle: "Malipo", amountDue: "Kiasi cha kulipa", tenderMethod: "Njia ya malipo",
+            mCash: "Taslimu", mMobile: "Simu (Mobile)", mCard: "Kadi", mCredit: "Mkopo / Deni", mBank: "Benki", mSplit: "Gawanya",
+            cashReceived: "Kiasi kilichopokelewa", change: "Chenji", creditNote: "Mauzo haya yatarekodiwa kama deni. Weka taarifa za mteja ili kufuatilia.",
+            btnConfirmSale: "Thibitisha &amp; Toa Invoice", btnCancel: "Ghairi",
+            addProductTitle: "Ongeza Bidhaa", editProductTitle: "Hariri Bidhaa", pName: "Jina", pSku: "SKU / Barcode", pCat: "Aina", pPrice: "Bei (TSh)", pStock: "Idadi ya Stoki", btnSave: "Hifadhi",
+            addCustomerTitle: "Ongeza Mteja", editCustomerTitle: "Hariri Mteja", cName: "Jina", cPhone: "Simu", cTin: "TIN", cAddress: "Anwani",
+            parkedTitle: "Mauzo Yaliyowekwa Pembeni", parkedEmpty: "Hakuna mauzo yaliyowekwa", btnClose: "Funga",
+            recordPayTitle: "Rekodi Malipo", invoiceWord: "Invoice", balanceWord: "Baki", payAmount: "Kiasi cha malipo", btnRecordPay: "Rekodi Malipo",
+            edit: "Hariri", del: "Futa", resume: "Endelea", recordPay: "Rekodi malipo",
+            inStock: "stoki", itemsWord: "bidhaa", unpaid: "Haijalipwa", partial: "Sehemu", paid: "Imelipwa",
+            syncOnline: "Mtandaoni", syncOffline: "Nje ya mtandao",
+            savedOk: "Imehifadhiwa", saleDone: "Mauzo yamekamilika:", payRecorded: "Malipo yamerekodiwa", saleParked: "Mauzo yamewekwa pembeni",
+            cartEmptyMsg: "Cart iko tupu!", confirmDelProduct: "Futa bidhaa hii?", confirmDelCust: "Futa mteja huyu?",
+            confirmClear: "Futa cart yote?", confirmReplaceCart: "Badilisha cart ya sasa?", promptSaleDisc: "Asilimia ya punguzo la mauzo yote (%)",
+            errNamePrice: "Jina na bei vinahitajika", errName: "Jina linahitajika",
+            onboardTitle: "Sanidi biashara yako", onboardDesc: "Tuambie kuhusu biashara yako. Taarifa hizi zitaonekana kwenye akaunti na invoice zako.",
+            obName: "Jina la Biashara", obType: "Aina ya Biashara", obLocation: "Eneo la Biashara", obPayments: "Njia za Malipo (gusa kuchagua)",
+            obTypePick: "— Chagua —", obTypeRetail: "Rejareja / Duka", obTypeWholesale: "Jumla", obTypeSpareParts: "Spea za Magari", obTypePharmacy: "Duka la Dawa", obTypeRestaurant: "Mgahawa / Chakula", obTypeElectronics: "Elektroniki", obTypeServices: "Huduma", obTypeOther: "Nyingine",
+            obFinish: "Maliza &amp; Ingia Dashboard", tabAccount: "⚙️ Akaunti",
+            accountSec: "Wasifu wa Biashara", btnEditProfile: "✎ Hariri Wasifu", accountHint: "Taarifa hizi ziliwekwa wakati wa kujisajili na huonekana kwenye invoice zako. Unaweza kuzibadilisha wakati wowote.",
+            obLogo: "Nembo ya Biashara (hiari)", obLogoHint: "PNG, JPG, WEBP au SVG · kisizidi 512KB", obLogoRemove: "Ondoa nembo",
+            obPayNumber: "NMB Lipa Namba (NMB Pay Number)", obPayName: "Jina la Akaunti / Mpokeaji",
+            errBizName: "Jina la biashara linahitajika", errLogoSize: "Nembo ni kubwa mno (kikomo 512KB)"
         },
         en: {
             noAccount: "No Account", login: "Login", logout: "Logout",
@@ -392,20 +850,64 @@
             tabSales: "\uD83D\uDED2 Sales (POS / Cart)", tabDebts: "\uD83D\uDCB3 Debts & Payments", tabReports: "\uD83D\uDCCA Dashboard & Reports", tabStock: "\uD83D\uDCE6 Inventory (Stock)", tabCustomers: "\uD83D\uDC65 Customers & Technicians",
             selectProduct: "Select Product / Produce", searchProduct: "Search Product:", qty: "Quantity (Qty):", addCart: "+ Add to Cart",
             cartTitle: "Cart Summary", thItem: "Item", thPrice: "Price", thQty: "Qty", thTotal: "Total", grandTotal: "Grand Total:", completeCheckout: "Complete Sale",
+            custDetails: "Customer Details (Invoice)", custName: "Customer Name", custPhone: "Phone", custAddress: "Address / Location", custTin: "TIN (Business)", custDue: "Due Date", custNotes: "Notes",
             debtsSec: "Debts & Credit Management", reportsSec: "Sales & Performance Reports", stockSec: "Stock & Inventory Management", customersSec: "Customers & Technicians Directory",
             modalPayTitle: "Pay Subscription for HALLTAN BUSINESS POS",
             modalPayDesc: "Send payment via any method below, then enter your Transaction Reference ID:",
             lblLipaNo: "Payment Number (Lipa Namba)", btnConfirmPay: "Confirm Payment", btnClose: "Close",
-            footTagline: "Sales, Inventory & Debt Management \u2014 Halltan, Tanzania"
+            footTagline: "Sales, Inventory & Debt Management \u2014 Halltan, Tanzania",
+            selectProduct: "Find Product", searchPh: "Search name, SKU or scan barcode…", cartTitle: "Current Sale",
+            thItem: "Item", thPrice: "Price", thQty: "Qty", thDisc: "Disc%", thTotal: "Total",
+            cartEmpty: "Cart is empty — search and add a product", btnSaleDisc: "＋ Sale discount", btnHold: "⏸ Hold / Park",
+            btnParked: "Parked", btnClearCart: "🗑 Clear", subtotal: "Subtotal", discount: "Discount", taxRow: "VAT (18%)", grandTotal: "TOTAL",
+            custDetails: "Customer Details (optional)", custName: "Customer Name", custPhone: "Phone", custAddress: "Address / Location",
+            custTin: "TIN (Business)", custDue: "Due Date", custNotes: "Notes", completeCheckout: "Complete Sale &amp; Invoice",
+            stockSec: "Inventory & Products", btnAddProduct: "＋ Add Product", filterPh: "Filter products…", products: "products",
+            thName: "Name", thSku: "SKU / Barcode", thCat: "Category", thStock: "Stock", invEmpty: "No products yet — add your first product",
+            debtsSec: "Debts & Credit", debtsHint: "Unpaid and partially-paid invoices appear here. Record payments to clear balances.",
+            outstanding: "Outstanding", openInvoices: "Open invoices", thInv: "Invoice", thCust: "Customer", thDate: "Date", thBalance: "Balance",
+            thStatus: "Status", debtEmpty: "No outstanding debts", reportsSec: "Sales Reports",
+            rangeToday: "Today", range7: "Last 7 days", range30: "Last 30 days", rangeAll: "All time",
+            revenue: "Revenue", salesCount: "Sales", avgSale: "Avg sale", itemsSold: "Items sold",
+            topProducts: "Top Products", thQtySold: "Qty sold", thRevenue: "Revenue", repEmpty: "No sales in this period yet",
+            customersSec: "Customers", btnAddCustomer: "＋ Add Customer", filterCustPh: "Filter customers…", customersWord: "customers",
+            thAddress: "Address", thTin: "TIN", custEmpty: "No customers yet",
+            checkoutTitle: "Payment", amountDue: "Amount due", tenderMethod: "Payment method",
+            mCash: "Cash", mMobile: "Mobile Money", mCard: "Card", mCredit: "Credit / Debt", mBank: "Bank", mSplit: "Split",
+            cashReceived: "Amount received", change: "Change", creditNote: "This sale will be recorded as an unpaid debt. Add customer details so you can track it.",
+            btnConfirmSale: "Confirm &amp; Generate Invoice", btnCancel: "Cancel",
+            addProductTitle: "Add Product", editProductTitle: "Edit Product", pName: "Name", pSku: "SKU / Barcode", pCat: "Category", pPrice: "Price (TSh)", pStock: "Stock qty", btnSave: "Save",
+            addCustomerTitle: "Add Customer", editCustomerTitle: "Edit Customer", cName: "Name", cPhone: "Phone", cTin: "TIN", cAddress: "Address",
+            parkedTitle: "Parked Sales", parkedEmpty: "No parked sales", btnClose: "Close",
+            recordPayTitle: "Record Payment", invoiceWord: "Invoice", balanceWord: "Balance", payAmount: "Payment amount", btnRecordPay: "Record Payment",
+            edit: "Edit", del: "Delete", resume: "Resume", recordPay: "Record payment",
+            inStock: "in stock", itemsWord: "items", unpaid: "Unpaid", partial: "Partial", paid: "Paid",
+            syncOnline: "Online", syncOffline: "Offline",
+            savedOk: "Saved", saleDone: "Sale complete:", payRecorded: "Payment recorded", saleParked: "Sale parked",
+            cartEmptyMsg: "Cart is empty!", confirmDelProduct: "Delete this product?", confirmDelCust: "Delete this customer?",
+            confirmClear: "Clear the whole cart?", confirmReplaceCart: "Replace current cart?", promptSaleDisc: "Whole-sale discount percentage (%)",
+            errNamePrice: "Name and price are required", errName: "Name is required",
+            onboardTitle: "Set up your business", onboardDesc: "Tell us about your business. These details appear on your account and invoices.",
+            obName: "Business Name", obType: "Business Type", obLocation: "Business Location", obPayments: "Payment Methods (tap to select)",
+            obTypePick: "— Select —", obTypeRetail: "Retail / Duka", obTypeWholesale: "Wholesale", obTypeSpareParts: "Spare Parts", obTypePharmacy: "Pharmacy", obTypeRestaurant: "Restaurant / Food", obTypeElectronics: "Electronics", obTypeServices: "Services", obTypeOther: "Other",
+            obFinish: "Finish &amp; Enter Dashboard", tabAccount: "⚙️ Account",
+            accountSec: "Business Profile", btnEditProfile: "✎ Edit Profile", accountHint: "These details were set at sign-up and appear on your invoices. You can update them anytime.",
+            obLogo: "Business Logo (optional)", obLogoHint: "PNG, JPG, WEBP or SVG · max 512KB", obLogoRemove: "Remove logo",
+            obPayNumber: "NMB Pay Number (NMB Lipa Namba)", obPayName: "Account / Recipient Name",
+            errBizName: "Business name is required", errLogoSize: "Logo is too large (max 512KB)"
         }
     };
 
-    let currentLang = 'sw';
+    let currentLang = 'en';
     function changeLanguage(lang) {
         currentLang = lang;
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
-            if (translations[lang][key]) el.innerText = translations[lang][key];
+            if (translations[lang][key]) el.innerHTML = translations[lang][key];
+        });
+        document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+            const key = el.getAttribute('data-i18n-ph');
+            if (translations[lang][key]) el.setAttribute('placeholder', translations[lang][key]);
         });
         const popularCard = document.getElementById('card-popular');
         if (popularCard) popularCard.setAttribute('data-popular-label', translations[lang].popularTag);
@@ -445,15 +947,21 @@
         messagingSenderId: "123456789",
         appId: "1:123456789:web:abcdef"
     };
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+    let auth = null, db = null, firebaseReady = false;
+    try {
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        auth = firebase.auth();
+        db = firebase.firestore();
+        firebaseReady = true;
+    } catch (e) {
+        console.warn("Firebase not configured yet — test login still available.", e);
+    }
 
     let currentUser = null;
     let selectedDurationMonths = 1;
     const basePrices = { Small: 15000, Medium: 35000, Enterprise: 75000 };
 
-    auth.onAuthStateChanged(user => {
+    if (firebaseReady) auth.onAuthStateChanged(user => {
         if (user) {
             currentUser = user;
             document.getElementById('user-display-email').innerText = user.email;
@@ -468,13 +976,82 @@
     });
 
     function loginWithGoogle() {
+        if (!firebaseReady) {
+            alert(currentLang === 'sw'
+                ? "Firebase bado haijawekwa. Tumia 'Test Login (Admin)' kwa sasa."
+                : "Firebase isn't configured yet. Use 'Test Login (Admin)' for now.");
+            return;
+        }
         const provider = new firebase.auth.GoogleAuthProvider();
         auth.signInWithPopup(provider).catch(error => alert("Login failed: " + error.message));
     }
-    function handleAuthAction() { if (currentUser) auth.signOut(); else loginWithGoogle(); }
+    function handleAuthAction() {
+        if (testSession) { testLogout(); return; }
+        if (currentUser) auth.signOut(); else loginWithGoogle();
+    }
+
+    /* ============================================================
+       TODO: REMOVE TEST LOGIN BEFORE PRODUCTION
+       Development-only bypass. Credentials are visible in page
+       source (not secure). Replace with Firebase Auth admin check
+       (specific admin email or custom claim) before going live.
+       Delete: this block, the #test-login-modal, and the
+       "Test Login (Admin)" button on the auth card.
+       ============================================================ */
+    /* --- TEST LOGIN (development only; replace with real auth later) --- */
+    const TEST_CREDENTIALS = { username: "halltan1", password: "1natllah" };
+    let testSession = false;
+
+    function openTestLogin() { document.getElementById('test-login-modal').style.display = 'flex'; }
+    function closeTestLogin() {
+        document.getElementById('test-login-modal').style.display = 'none';
+        document.getElementById('test-login-err').style.display = 'none';
+        document.getElementById('test-user').value = '';
+        document.getElementById('test-pass').value = '';
+    }
+    function doTestLogin() {
+        const u = document.getElementById('test-user').value.trim();
+        const p = document.getElementById('test-pass').value;
+        if (u === TEST_CREDENTIALS.username && p === TEST_CREDENTIALS.password) {
+            testSession = true;
+            closeTestLogin();
+            document.getElementById('user-display-email').innerText = u + " (Test)";
+            document.getElementById('btn-auth-action').innerText = translations[currentLang].logout;
+            // First-time test users fill business details; afterwards go straight in
+            if (!getBusinessProfile()) {
+                pendingTenant = { tier: "Medium (Test)", status: "Active (Test Mode)", ownerEmail: "test@halltan" };
+                openOnboarding(false);
+            } else {
+                showAppView({ tier: "Medium (Test)", status: "Active (Test Mode)" });
+            }
+        } else {
+            document.getElementById('test-login-err').style.display = 'block';
+        }
+    }
+    function testLogout() {
+        testSession = false;
+        document.getElementById('user-display-email').innerText = translations[currentLang].noAccount;
+        document.getElementById('btn-auth-action').innerText = translations[currentLang].login;
+        showLandingView();
+    }
     function checkTenantSubscription(user) {
-        db.collection('tenants').doc(user.uid).get().then(doc => {
-            if (doc.exists) showAppView(doc.data()); else showLandingView();
+        db.collection('tenants').doc(user.uid).get().then(async doc => {
+            if (doc.exists) {
+                const data = doc.data();
+                // Sync a saved business profile into the offline store so it displays
+                if (data.businessProfile && !getBusinessProfile()) {
+                    await metaSet('businessProfile', data.businessProfile);
+                }
+                // Existing tenant with no profile yet → prompt onboarding once
+                if (!data.businessProfile && !getBusinessProfile()) {
+                    pendingTenant = { tier: data.tier, status: data.status, ownerEmail: user.email };
+                    openOnboarding(false);
+                    return;
+                }
+                showAppView(data);
+            } else {
+                showLandingView();
+            }
         });
     }
     function showLandingView() {
@@ -488,6 +1065,9 @@
             document.getElementById('current-tier-display').innerText = tenantData.tier || "Small";
             document.getElementById('current-status-display').innerText = tenantData.status || "Active";
         }
+        applyBusinessProfile();
+        if (typeof refreshActiveViews === 'function') refreshActiveViews();
+        setTimeout(() => { const s = document.getElementById('pos-search'); if (s) s.focus(); }, 60);
     }
     function setDuration(months, btn) {
         selectedDurationMonths = months;
@@ -501,25 +1081,50 @@
         document.getElementById('price-medium').innerHTML = `TSh ${(basePrices.Medium * discount).toLocaleString()} <span>${p}</span>`;
         document.getElementById('price-enterprise').innerHTML = `TSh ${(basePrices.Enterprise * discount).toLocaleString()} <span>${p}</span>`;
     }
+    let pendingTenant = null;
     function selectTier(tierName) {
-        if (!currentUser) {
+        if (!currentUser && !testSession) {
             alert(currentLang === 'sw' ? "Tafadhali ingia na Google kwanza!" : "Please log in with Google first!");
             loginWithGoogle(); return;
         }
-        let tenantPayload = {
-            ownerEmail: currentUser.email, tier: tierName, durationMonths: selectedDurationMonths,
-            status: "Active (Free Trial)", createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        pendingTenant = {
+            ownerEmail: (currentUser && currentUser.email) || 'test@halltan',
+            tier: tierName, durationMonths: selectedDurationMonths,
+            status: "Active (Free Trial)"
         };
-        db.collection('tenants').doc(currentUser.uid).set(tenantPayload).then(() => {
-            alert(currentLang === 'sw' ? `Hongera! Umefanikiwa kusajili Kifurushi cha ${tierName}` : `Success! Subscribed to ${tierName} plan`);
-            showAppView(tenantPayload);
-        });
+        // New accounts fill in business details first
+        if (!getBusinessProfile()) { openOnboarding(false); }
+        else { enterDashboardAfterOnboarding(); }
+    }
+
+    // Called after the onboarding modal is completed (or skipped if profile exists)
+    function enterDashboardAfterOnboarding() {
+        const payload = pendingTenant || { tier: "Medium", status: "Active" };
+        if (firebaseReady && currentUser && db) {
+            const toSave = Object.assign({}, payload, {
+                businessProfile: getBusinessProfile() || null,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            db.collection('tenants').doc(currentUser.uid).set(toSave, { merge: true }).catch(() => {});
+        }
+        pendingTenant = null;
+        showAppView(payload);
+        const p = getBusinessProfile();
+        alert(currentLang === 'sw'
+            ? `Hongera! Akaunti ya "${(p && p.name) || payload.tier}" imeundwa.`
+            : `Success! Account for "${(p && p.name) || payload.tier}" created.`);
     }
     function switchTab(tabId, e) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         e.currentTarget.classList.add('active');
+        if (tabId === 'inventory-tab') renderInventory();
+        else if (tabId === 'customers-tab') renderCustomers();
+        else if (tabId === 'debts-tab') renderDebts();
+        else if (tabId === 'dashboard-tab') renderReports();
+        else if (tabId === 'account-tab') applyBusinessProfile();
+        else if (tabId === 'sales-tab') { renderCart(); setTimeout(() => { const s = document.getElementById('pos-search'); if (s) s.focus(); }, 40); }
     }
     function showPaymentModal() { document.getElementById('subscription-modal').style.display = 'flex'; }
     function closeSubscriptionModal() { document.getElementById('subscription-modal').style.display = 'none'; }
@@ -529,6 +1134,885 @@
         alert(currentLang === 'sw' ? "Ombi la malipo limepokelewa!" : "Payment submitted for verification!");
         closeSubscriptionModal();
     }
+
+    /* =========================================================
+       HALLTAN POS — offline-first core
+       Data persists in IndexedDB (works with no internet).
+       When Firebase is wired later, this same data syncs up.
+       ========================================================= */
+
+    // --- Business header shown on the invoice ---
+    const INVOICE_CONFIG = {
+        businessName: "HALLTAN BUSINESS POS",
+        line1: "HALLTAN",
+        line2: "TEL +255 778 650 250",
+        city: "DAR ES SALAAM",
+        country: "TANZANIA",
+        tin: "", vrn: "", taxOffice: "",
+        showTax: true,          // TOGGLE: true = show VAT breakdown
+        taxRate: 0.18,
+        pricesIncludeTax: true, // item prices already include VAT
+        currency: "TSh",
+        invoicePrefix: "INV-",
+        payLipa: "",       // set per-client from onboarding (Payment Number / Lipa Namba)
+        payOwner: "",      // set per-client from onboarding (Account / Recipient Name)
+        payMethods: "",    // set per-client from onboarding (selected methods)
+        terms: "Goods sold are not returnable. / Bidhaa zilizouzwa hazirudishwi."
+    };
+    const RECEIPT_CONFIG = INVOICE_CONFIG; // back-compat alias
+
+    /* ---------- Offline-first store (IndexedDB, with in-memory mirror) ---------- */
+    const DB_NAME = 'halltan_pos', DB_VER = 1;
+    const STORES = ['products', 'customers', 'sales', 'meta'];
+    let _db = null;
+    const mem = { products: [], customers: [], sales: [], meta: {} };
+
+    function idbOpen() {
+        return new Promise((resolve) => {
+            if (!('indexedDB' in window)) { resolve(null); return; }
+            const req = indexedDB.open(DB_NAME, DB_VER);
+            req.onupgradeneeded = e => {
+                const db = e.target.result;
+                STORES.forEach(s => { if (!db.objectStoreNames.contains(s)) db.createObjectStore(s, { keyPath: 'id' }); });
+            };
+            req.onsuccess = e => resolve(e.target.result);
+            req.onerror = () => resolve(null);
+        });
+    }
+    function idbAll(store) {
+        return new Promise(resolve => {
+            if (!_db) return resolve([]);
+            const tx = _db.transaction(store, 'readonly').objectStore(store).getAll();
+            tx.onsuccess = () => resolve(tx.result || []);
+            tx.onerror = () => resolve([]);
+        });
+    }
+    function idbPut(store, obj) {
+        return new Promise(resolve => {
+            if (!_db) return resolve(false);
+            const tx = _db.transaction(store, 'readwrite').objectStore(store).put(obj);
+            tx.onsuccess = () => resolve(true);
+            tx.onerror = () => resolve(false);
+        });
+    }
+    function idbDel(store, id) {
+        return new Promise(resolve => {
+            if (!_db) return resolve(false);
+            const tx = _db.transaction(store, 'readwrite').objectStore(store).delete(id);
+            tx.onsuccess = () => resolve(true);
+            tx.onerror = () => resolve(false);
+        });
+    }
+
+    async function initStore() {
+        _db = await idbOpen();
+        if (_db) {
+            mem.products  = await idbAll('products');
+            mem.customers = await idbAll('customers');
+            mem.sales     = await idbAll('sales');
+            const metaRows = await idbAll('meta');
+            metaRows.forEach(r => mem.meta[r.id] = r.value);
+        }
+        // First run: seed a small demo catalogue so the POS isn't empty
+        if (mem.products.length === 0 && !mem.meta.seeded) {
+            const seed = [
+                { name: "Sukari 1kg", sku: "SUG1", cat: "Groceries", price: 3200, stock: 60 },
+                { name: "Mchele 5kg", sku: "RICE5", cat: "Groceries", price: 14500, stock: 40 },
+                { name: "Cooking Oil 1L", sku: "OIL1", cat: "Groceries", price: 5800, stock: 35 },
+                { name: "Soap Bar", sku: "SOAP", cat: "Household", price: 2400, stock: 100 }
+            ];
+            for (const s of seed) await addProduct(s, true);
+            await metaSet('seeded', true);
+        }
+    }
+    async function metaSet(k, v) { mem.meta[k] = v; await idbPut('meta', { id: k, value: v }); }
+    function uid(p) { return p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+    /* ---------- Business profile (set at account creation) ---------- */
+    const PAYMENT_OPTIONS = ["Cash", "M-Pesa", "Airtel Money", "Mixx by Yas", "HaloPesa", "TIPS", "NMB Mkononi", "Bank Transfer", "Visa / Mastercard"];
+    let obSelectedPayments = [];
+    let obLogoData = null; // base64 data URL of uploaded logo
+
+    function getBusinessProfile() { return mem.meta.businessProfile || null; }
+
+    function handleLogoUpload(e) {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        if (file.size > 512 * 1024) {
+            const err = document.getElementById('onboard-err');
+            err.innerText = t('errLogoSize'); err.style.display = 'block';
+            e.target.value = ''; return;
+        }
+        const reader = new FileReader();
+        reader.onload = ev => { obLogoData = ev.target.result; renderLogoPreview(); document.getElementById('onboard-err').style.display = 'none'; };
+        reader.readAsDataURL(file);
+    }
+    function removeLogo() {
+        obLogoData = null;
+        const inp = document.getElementById('ob-logo-input'); if (inp) inp.value = '';
+        renderLogoPreview();
+    }
+    function renderLogoPreview() {
+        const box = document.getElementById('ob-logo-preview');
+        const rm = document.getElementById('ob-logo-remove');
+        if (!box) return;
+        if (obLogoData) { box.innerHTML = `<img src="${obLogoData}" style="width:100%;height:100%;object-fit:contain;">`; if (rm) rm.style.display = 'block'; }
+        else { box.innerHTML = '🏢'; if (rm) rm.style.display = 'none'; }
+    }
+
+    async function saveBusinessProfile(profile) {
+        await metaSet('businessProfile', profile);
+        applyBusinessProfile();
+    }
+
+    // Reflect the profile into the invoice config, banner and account tab
+    function applyBusinessProfile() {
+        const p = getBusinessProfile();
+        if (!p) return;
+        if (p.name) INVOICE_CONFIG.businessName = p.name;
+        if (p.location) INVOICE_CONFIG.city = p.location;
+        if (Array.isArray(p.payments) && p.payments.length) INVOICE_CONFIG.payMethods = p.payments.join(' · ');
+        INVOICE_CONFIG.payLipa = p.payNumber || '';
+        INVOICE_CONFIG.payOwner = p.payName || '';
+        INVOICE_CONFIG.logo = p.logo || null;
+
+        const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v || '—'; };
+        set('biz-name-display', p.name);
+        set('biz-type-display', p.type ? '· ' + p.type : '');
+        set('acc-name', p.name);
+        set('acc-type', p.type);
+        set('acc-location', p.location);
+        set('acc-paynumber', p.payNumber);
+        set('acc-payname', p.payName);
+        const chips = document.getElementById('acc-payments');
+        if (chips) chips.innerHTML = (p.payments && p.payments.length)
+            ? p.payments.map(m => `<span class="chip" style="cursor:default;">${esc(m)}</span>`).join('')
+            : `<span class="sr-meta">—</span>`;
+        const accLogo = document.getElementById('acc-logo');
+        if (accLogo) accLogo.innerHTML = p.logo ? `<img src="${p.logo}" style="width:100%;height:100%;object-fit:contain;">` : '🏢';
+    }
+
+    // Open the onboarding modal. editing=true when reached from the Account tab.
+    let onboardEditing = false;
+    function openOnboarding(editing) {
+        onboardEditing = !!editing;
+        const p = getBusinessProfile() || {};
+        document.getElementById('ob-name').value = p.name || '';
+        document.getElementById('ob-type').value = p.type || '';
+        document.getElementById('ob-location').value = p.location || '';
+        document.getElementById('ob-paynumber').value = p.payNumber || '';
+        document.getElementById('ob-payname').value = p.payName || '';
+        obSelectedPayments = Array.isArray(p.payments) ? [...p.payments] : [];
+        obLogoData = p.logo || null;
+        const inp = document.getElementById('ob-logo-input'); if (inp) inp.value = '';
+        renderLogoPreview();
+        renderPayChips();
+        document.getElementById('onboard-err').style.display = 'none';
+        openModal('onboard-modal');
+        setTimeout(() => document.getElementById('ob-name').focus(), 60);
+    }
+    function renderPayChips() {
+        const wrap = document.getElementById('ob-pay-chips');
+        wrap.innerHTML = PAYMENT_OPTIONS.map(m => {
+            const on = obSelectedPayments.includes(m);
+            return `<span class="chip" style="${on ? 'background:var(--accent);color:#fff;border-color:var(--accent);' : ''}" onclick="togglePay('${m.replace(/'/g,"\\'")}')">${on ? '✓ ' : ''}${m}</span>`;
+        }).join('');
+    }
+    function togglePay(m) {
+        const i = obSelectedPayments.indexOf(m);
+        if (i >= 0) obSelectedPayments.splice(i, 1); else obSelectedPayments.push(m);
+        renderPayChips();
+    }
+    async function submitOnboarding() {
+        const name = document.getElementById('ob-name').value.trim();
+        const type = document.getElementById('ob-type').value;
+        const location = document.getElementById('ob-location').value.trim();
+        const payNumber = document.getElementById('ob-paynumber').value.trim();
+        const payName = document.getElementById('ob-payname').value.trim();
+        const err = document.getElementById('onboard-err');
+        if (!name) { err.innerText = t('errBizName'); err.style.display = 'block'; return; }
+        const profile = { name, type, location, payments: [...obSelectedPayments], payNumber, payName, logo: obLogoData || null, updatedAt: Date.now() };
+        await saveBusinessProfile(profile);
+
+        // If this profile is tied to a live tenant (Firebase), persist there too.
+        if (firebaseReady && currentUser && db) {
+            db.collection('tenants').doc(currentUser.uid).set({ businessProfile: profile }, { merge: true }).catch(() => {});
+        }
+        closeModal('onboard-modal');
+        if (onboardEditing) showToast(t('savedOk'));
+        else { enterDashboardAfterOnboarding(); }
+    }
+
+    /* ---------- Products / inventory ---------- */
+    async function addProduct(p, silent) {
+        const prod = { id: p.id || uid('P'), name: p.name, sku: p.sku || '', cat: p.cat || '', price: +p.price || 0, stock: +p.stock || 0, updatedAt: Date.now(), dirty: true };
+        const i = mem.products.findIndex(x => x.id === prod.id);
+        if (i >= 0) mem.products[i] = prod; else mem.products.push(prod);
+        await idbPut('products', prod);
+        if (!silent) { renderInventory(); refreshQuickChips(); }
+        return prod;
+    }
+    async function deleteProduct(id) {
+        if (!confirm(t('confirmDelProduct'))) return;
+        mem.products = mem.products.filter(p => p.id !== id);
+        await idbDel('products', id);
+        renderInventory(); refreshQuickChips();
+    }
+
+    let editingProductId = null;
+    function openProductModal(id) {
+        editingProductId = id || null;
+        const p = id ? mem.products.find(x => x.id === id) : null;
+        document.getElementById('product-modal-title').innerText = t(id ? 'editProductTitle' : 'addProductTitle');
+        document.getElementById('p-name').value = p ? p.name : '';
+        document.getElementById('p-sku').value = p ? p.sku : '';
+        document.getElementById('p-cat').value = p ? p.cat : '';
+        document.getElementById('p-price').value = p ? p.price : '';
+        document.getElementById('p-stock').value = p ? p.stock : '';
+        document.getElementById('product-err').style.display = 'none';
+        openModal('product-modal');
+        setTimeout(() => document.getElementById('p-name').focus(), 50);
+    }
+    async function saveProduct() {
+        const name = document.getElementById('p-name').value.trim();
+        const price = document.getElementById('p-price').value;
+        const err = document.getElementById('product-err');
+        if (!name || price === '') { err.innerText = t('errNamePrice'); err.style.display = 'block'; return; }
+        await addProduct({
+            id: editingProductId,
+            name, sku: document.getElementById('p-sku').value.trim(),
+            cat: document.getElementById('p-cat').value.trim(),
+            price: price, stock: document.getElementById('p-stock').value
+        });
+        closeModal('product-modal');
+        showToast(t('savedOk'));
+    }
+
+    function renderInventory() {
+        const q = (document.getElementById('inv-search').value || '').toLowerCase();
+        const body = document.getElementById('inv-table-body');
+        const list = mem.products.filter(p => !q || p.name.toLowerCase().includes(q) || (p.sku || '').toLowerCase().includes(q) || (p.cat || '').toLowerCase().includes(q));
+        body.innerHTML = list.map(p => `<tr>
+            <td><b>${esc(p.name)}</b></td>
+            <td>${esc(p.sku) || '—'}</td>
+            <td>${esc(p.cat) || '—'}</td>
+            <td class="tr">${p.price.toLocaleString()}</td>
+            <td style="text-align:center;">${p.stock <= 5 ? `<span class="badge unpaid">${p.stock}</span>` : p.stock}</td>
+            <td style="white-space:nowrap;">
+                <button class="mini-btn" onclick="openProductModal('${p.id}')" data-i18n="edit">Edit</button>
+                <button class="mini-btn danger" onclick="deleteProduct('${p.id}')" data-i18n="del">Delete</button>
+            </td></tr>`).join('');
+        document.getElementById('inv-count').innerText = list.length;
+        document.getElementById('inv-empty').style.display = list.length ? 'none' : 'block';
+        applyLangTo(body);
+    }
+
+    /* ---------- Customers ---------- */
+    async function addCustomer(c) {
+        const cust = { id: c.id || uid('C'), name: c.name, phone: c.phone || '', address: c.address || '', tin: c.tin || '', updatedAt: Date.now(), dirty: true };
+        const i = mem.customers.findIndex(x => x.id === cust.id);
+        if (i >= 0) mem.customers[i] = cust; else mem.customers.push(cust);
+        await idbPut('customers', cust);
+        renderCustomers();
+        return cust;
+    }
+    async function deleteCustomer(id) {
+        if (!confirm(t('confirmDelCust'))) return;
+        mem.customers = mem.customers.filter(c => c.id !== id);
+        await idbDel('customers', id);
+        renderCustomers();
+    }
+    let editingCustomerId = null;
+    function openCustomerModal(id) {
+        editingCustomerId = id || null;
+        const c = id ? mem.customers.find(x => x.id === id) : null;
+        document.getElementById('customer-modal-title').innerText = t(id ? 'editCustomerTitle' : 'addCustomerTitle');
+        document.getElementById('c-name').value = c ? c.name : '';
+        document.getElementById('c-phone').value = c ? c.phone : '';
+        document.getElementById('c-tin').value = c ? c.tin : '';
+        document.getElementById('c-address').value = c ? c.address : '';
+        document.getElementById('customer-err').style.display = 'none';
+        openModal('customer-modal');
+        setTimeout(() => document.getElementById('c-name').focus(), 50);
+    }
+    async function saveCustomer() {
+        const name = document.getElementById('c-name').value.trim();
+        const err = document.getElementById('customer-err');
+        if (!name) { err.innerText = t('errName'); err.style.display = 'block'; return; }
+        await addCustomer({
+            id: editingCustomerId, name,
+            phone: document.getElementById('c-phone').value.trim(),
+            tin: document.getElementById('c-tin').value.trim(),
+            address: document.getElementById('c-address').value.trim()
+        });
+        closeModal('customer-modal');
+        showToast(t('savedOk'));
+    }
+    function renderCustomers() {
+        const q = (document.getElementById('cust-search').value || '').toLowerCase();
+        const body = document.getElementById('cust-table-body');
+        const list = mem.customers.filter(c => !q || c.name.toLowerCase().includes(q) || (c.phone || '').includes(q));
+        body.innerHTML = list.map(c => `<tr>
+            <td><b>${esc(c.name)}</b></td>
+            <td>${esc(c.phone) || '—'}</td>
+            <td>${esc(c.address) || '—'}</td>
+            <td>${esc(c.tin) || '—'}</td>
+            <td style="white-space:nowrap;">
+                <button class="mini-btn" onclick="openCustomerModal('${c.id}')" data-i18n="edit">Edit</button>
+                <button class="mini-btn danger" onclick="deleteCustomer('${c.id}')" data-i18n="del">Delete</button>
+            </td></tr>`).join('');
+        document.getElementById('cust-count').innerText = list.length;
+        document.getElementById('cust-empty').style.display = list.length ? 'none' : 'block';
+        applyLangTo(body);
+    }
+
+    /* ---------- Cart + keyboard-first checkout ---------- */
+    let cart = [];        // {id,name,price,qty,disc}
+    let saleDiscount = 0; // percentage on whole sale
+    let parked = [];      // parked carts
+    let searchIndex = -1; // active row in search results
+
+    function refreshQuickChips() {
+        const wrap = document.getElementById('quick-chips');
+        if (!wrap) return;
+        const top = mem.products.slice(0, 6);
+        wrap.innerHTML = top.map(p => `<span class="chip" onclick="addItemToCart('${p.id}')">${esc(p.name)}</span>`).join('');
+    }
+
+    function posSearch(qraw) {
+        const q = (qraw || '').toLowerCase().trim();
+        const ul = document.getElementById('pos-search-results');
+        searchIndex = -1;
+        if (!q) { ul.innerHTML = ''; return; }
+        // exact SKU/barcode match → surface first
+        const matches = mem.products.filter(p =>
+            p.name.toLowerCase().includes(q) || (p.sku || '').toLowerCase().includes(q));
+        ul.innerHTML = matches.slice(0, 20).map((p, i) => `<li data-id="${p.id}" onclick="addItemToCart('${p.id}');afterAdd();">
+            <span><span class="sr-name">${esc(p.name)}</span> <span class="sr-meta">${esc(p.sku) || ''}</span>
+            <span class="sr-stock ${p.stock <= 5 ? 'low' : ''}">${p.stock} ${t('inStock')}</span></span>
+            <span class="sr-price">${INVOICE_CONFIG.currency} ${p.price.toLocaleString()}</span></li>`).join('');
+        if (matches.length) { searchIndex = 0; highlightSearch(); }
+    }
+    function highlightSearch() {
+        const items = document.querySelectorAll('#pos-search-results li');
+        items.forEach((li, i) => li.classList.toggle('active', i === searchIndex));
+        if (items[searchIndex]) items[searchIndex].scrollIntoView({ block: 'nearest' });
+    }
+    function afterAdd() {
+        const s = document.getElementById('pos-search');
+        s.value = ''; posSearch(''); s.focus();
+    }
+    function handleSearchKey(e) {
+        const items = document.querySelectorAll('#pos-search-results li');
+        if (e.key === 'ArrowDown') { e.preventDefault(); if (items.length) { searchIndex = Math.min(searchIndex + 1, items.length - 1); highlightSearch(); } }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); if (items.length) { searchIndex = Math.max(searchIndex - 1, 0); highlightSearch(); } }
+        else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (items[searchIndex]) { addItemToCart(items[searchIndex].getAttribute('data-id')); afterAdd(); }
+            else {
+                // barcode/SKU typed then Enter with no visible pick → try exact SKU
+                const q = e.target.value.trim().toLowerCase();
+                const hit = mem.products.find(p => (p.sku || '').toLowerCase() === q);
+                if (hit) { addItemToCart(hit.id); afterAdd(); }
+            }
+        } else if (e.key === 'Escape') { afterAdd(); }
+    }
+
+    function addItemToCart(id, qty) {
+        const p = mem.products.find(x => x.id === id);
+        if (!p) return;
+        const line = cart.find(c => c.id === id);
+        if (line) line.qty += (qty || 1);
+        else cart.push({ id: p.id, name: p.name, price: p.price, qty: qty || 1, disc: 0 });
+        renderCart();
+    }
+    function changeQty(id, delta) {
+        const line = cart.find(c => c.id === id); if (!line) return;
+        line.qty = Math.max(1, line.qty + delta); renderCart();
+    }
+    function setQty(id, v) {
+        const line = cart.find(c => c.id === id); if (!line) return;
+        line.qty = Math.max(1, parseInt(v) || 1); renderCart();
+    }
+    function setLineDisc(id, v) {
+        const line = cart.find(c => c.id === id); if (!line) return;
+        line.disc = Math.min(100, Math.max(0, parseFloat(v) || 0)); renderCart();
+    }
+    function removeCartItem(id) { cart = cart.filter(c => c.id !== id); renderCart(); }
+    function clearCart() {
+        if (cart.length && !confirm(t('confirmClear'))) return;
+        cart = []; saleDiscount = 0; renderCart();
+    }
+
+    function cartTotals() {
+        const C = INVOICE_CONFIG;
+        let subtotal = 0;
+        cart.forEach(c => { subtotal += c.price * c.qty * (1 - (c.disc || 0) / 100); });
+        subtotal = Math.round(subtotal);
+        const discAmt = Math.round(subtotal * (saleDiscount / 100));
+        const afterDisc = subtotal - discAmt;
+        const useTax = !!C.showTax && (C.taxRate || 0) > 0;
+        let exclusive = afterDisc, tax = 0, grand = afterDisc;
+        if (useTax) {
+            if (C.pricesIncludeTax) { exclusive = Math.round(afterDisc / (1 + C.taxRate)); tax = afterDisc - exclusive; grand = afterDisc; }
+            else { exclusive = afterDisc; tax = Math.round(afterDisc * C.taxRate); grand = afterDisc + tax; }
+        }
+        return { subtotal, discAmt, afterDisc, exclusive, tax, grand, useTax };
+    }
+
+    function renderCart() {
+        const body = document.getElementById('cart-table-body');
+        const empty = document.getElementById('cart-empty');
+        body.innerHTML = cart.map(c => {
+            const lineTotal = Math.round(c.price * c.qty * (1 - (c.disc || 0) / 100));
+            return `<tr class="cart-line">
+                <td><b>${esc(c.name)}</b></td>
+                <td class="tr">${c.price.toLocaleString()}</td>
+                <td style="text-align:center;">
+                    <span class="qty-stepper">
+                        <button onclick="changeQty('${c.id}',-1)">−</button>
+                        <input type="number" value="${c.qty}" min="1" onchange="setQty('${c.id}',this.value)">
+                        <button onclick="changeQty('${c.id}',1)">＋</button>
+                    </span>
+                </td>
+                <td style="text-align:center;"><input class="line-disc" type="number" min="0" max="100" value="${c.disc || 0}" onchange="setLineDisc('${c.id}',this.value)"></td>
+                <td class="tr"><b>${lineTotal.toLocaleString()}</b></td>
+                <td><span class="icon-x" onclick="removeCartItem('${c.id}')">&times;</span></td>
+            </tr>`;
+        }).join('');
+        empty.style.display = cart.length ? 'none' : 'block';
+        document.getElementById('cart-count').innerText = cart.reduce((s, c) => s + c.qty, 0) + ' ' + t('itemsWord');
+        document.getElementById('parked-count').innerText = parked.length;
+
+        const tot = cartTotals();
+        document.getElementById('t-subtotal').innerText = tot.subtotal.toLocaleString();
+        document.getElementById('t-discount').innerText = tot.discAmt.toLocaleString();
+        document.getElementById('t-disc-row').style.display = tot.discAmt > 0 ? 'flex' : 'none';
+        document.getElementById('t-tax-row').style.display = tot.useTax ? 'flex' : 'none';
+        document.getElementById('t-tax').innerText = tot.tax.toLocaleString();
+        document.getElementById('t-tax-row').querySelector('span').innerText = `VAT (${Math.round(INVOICE_CONFIG.taxRate*100)}%)`;
+        document.getElementById('t-grand').innerText = tot.grand.toLocaleString();
+    }
+
+    function applySaleDiscount() {
+        const v = prompt(t('promptSaleDisc'), saleDiscount);
+        if (v === null) return;
+        saleDiscount = Math.min(100, Math.max(0, parseFloat(v) || 0));
+        renderCart();
+    }
+
+    /* ---------- Hold / park sales ---------- */
+    function holdSale() {
+        if (!cart.length) { showToast(t('cartEmptyMsg')); return; }
+        parked.push({ id: uid('K'), at: new Date().toLocaleTimeString(), cart: JSON.parse(JSON.stringify(cart)), saleDiscount, cust: grabCustomer() });
+        cart = []; saleDiscount = 0; renderCart();
+        showToast(t('saleParked'));
+    }
+    function openParkedSales() {
+        const wrap = document.getElementById('parked-list');
+        document.getElementById('parked-empty').style.display = parked.length ? 'none' : 'block';
+        wrap.innerHTML = parked.map(pk => {
+            const n = pk.cart.reduce((s, c) => s + c.qty, 0);
+            return `<div class="pay-method-line"><span class="pm-name">⏸ ${pk.at} · ${n} ${t('itemsWord')}</span>
+                <span><button class="mini-btn" onclick="resumeParked('${pk.id}')" data-i18n="resume">Resume</button>
+                <button class="mini-btn danger" onclick="dropParked('${pk.id}')" data-i18n="del">Delete</button></span></div>`;
+        }).join('');
+        applyLangTo(wrap);
+        openModal('parked-modal');
+    }
+    function resumeParked(id) {
+        const pk = parked.find(p => p.id === id); if (!pk) return;
+        if (cart.length && !confirm(t('confirmReplaceCart'))) return;
+        cart = pk.cart; saleDiscount = pk.saleDiscount || 0;
+        if (pk.cust) setCustomer(pk.cust);
+        parked = parked.filter(p => p.id !== id);
+        renderCart(); closeModal('parked-modal');
+    }
+    function dropParked(id) { parked = parked.filter(p => p.id !== id); openParkedSales(); renderCart(); }
+
+    /* ---------- Customer field helpers ---------- */
+    function val(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+    function grabCustomer() { return { name: val('cust-name'), phone: val('cust-phone'), address: val('cust-address'), tin: val('cust-tin'), due: val('cust-due'), notes: val('cust-notes') }; }
+    function setCustomer(c) {
+        document.getElementById('cust-name').value = c.name || '';
+        document.getElementById('cust-phone').value = c.phone || '';
+        document.getElementById('cust-address').value = c.address || '';
+        document.getElementById('cust-tin').value = c.tin || '';
+        document.getElementById('cust-due').value = c.due || '';
+        document.getElementById('cust-notes').value = c.notes || '';
+    }
+    function clearCustomerFields() { setCustomer({}); }
+
+    /* ---------- Checkout + tender ---------- */
+    let tenderMethod = 'Cash';
+    function openCheckout() {
+        if (!cart.length) { showToast(t('cartEmptyMsg')); return; }
+        const tot = cartTotals();
+        document.getElementById('co-total').innerText = tot.grand.toLocaleString();
+        document.getElementById('co-received').value = '';
+        document.getElementById('change-box').style.display = 'none';
+        tenderMethod = 'Cash';
+        document.querySelectorAll('#tender-grid .tender-opt').forEach(o => o.classList.toggle('active', o.getAttribute('data-m') === 'Cash'));
+        document.getElementById('credit-note').style.display = 'none';
+        document.getElementById('cash-received-wrap').style.display = 'block';
+        openModal('checkout-modal');
+        setTimeout(() => document.getElementById('co-received').focus(), 60);
+    }
+    function pickTender(el) {
+        tenderMethod = el.getAttribute('data-m');
+        document.querySelectorAll('#tender-grid .tender-opt').forEach(o => o.classList.remove('active'));
+        el.classList.add('active');
+        const isCredit = tenderMethod === 'Credit (Debt)';
+        document.getElementById('credit-note').style.display = isCredit ? 'block' : 'none';
+        document.getElementById('cash-received-wrap').style.display = (tenderMethod === 'Cash') ? 'block' : 'none';
+        document.getElementById('change-box').style.display = 'none';
+    }
+    function calcChange() {
+        const tot = cartTotals();
+        const got = parseFloat(document.getElementById('co-received').value) || 0;
+        const box = document.getElementById('change-box');
+        if (got > 0) { box.style.display = 'flex'; document.getElementById('co-change').innerText = Math.max(0, got - tot.grand).toLocaleString(); }
+        else box.style.display = 'none';
+    }
+
+    async function confirmCheckout() {
+        const tot = cartTotals();
+        const isCredit = tenderMethod === 'Credit (Debt)';
+        const cust = grabCustomer();
+        const now = new Date();
+        const number = (mem.meta.invoiceCounter || 0) + 1;
+        await metaSet('invoiceCounter', number);
+
+        const sale = {
+            id: uid('S'),
+            invNo: INVOICE_CONFIG.invoicePrefix + String(number).padStart(4, '0'),
+            ts: now.getTime(),
+            items: cart.map(c => ({ id: c.id, name: c.name, price: c.price, qty: c.qty, disc: c.disc || 0 })),
+            subtotal: tot.subtotal, saleDiscount, discAmt: tot.discAmt,
+            exclusive: tot.exclusive, tax: tot.tax, grand: tot.grand, useTax: tot.useTax,
+            tender: tenderMethod,
+            paid: isCredit ? 0 : tot.grand,
+            balance: isCredit ? tot.grand : 0,
+            status: isCredit ? 'unpaid' : 'paid',
+            customer: cust,
+            dirty: true
+        };
+
+        // decrement stock
+        for (const it of cart) {
+            const p = mem.products.find(x => x.id === it.id);
+            if (p) { p.stock = Math.max(0, p.stock - it.qty); p.dirty = true; await idbPut('products', p); }
+        }
+
+        mem.sales.push(sale);
+        await idbPut('sales', sale);
+
+        // auto-save customer if named & new
+        if (cust.name && !mem.customers.some(c => c.name.toLowerCase() === cust.name.toLowerCase())) {
+            await addCustomer({ name: cust.name, phone: cust.phone, address: cust.address, tin: cust.tin });
+        }
+
+        closeModal('checkout-modal');
+        openInvoiceWindow(saleToInvoice(sale));
+        cart = []; saleDiscount = 0; renderCart(); clearCustomerFields();
+        renderInventory(); refreshQuickChips();
+        showToast(t('saleDone') + ' ' + sale.invNo);
+    }
+
+    // Adapt a stored sale into the shape openInvoiceWindow expects
+    function saleToInvoice(sale) {
+        const pad = n => String(n).padStart(2, '0');
+        const d = new Date(sale.ts);
+        const dateStr = `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()}`;
+        const timeStr = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+        let due = sale.customer.due || '';
+        if (due) { const dd = new Date(due); due = `${pad(dd.getDate())}-${pad(dd.getMonth()+1)}-${dd.getFullYear()}`; }
+        return {
+            invNo: sale.invNo, dateStr, timeStr,
+            items: sale.items,
+            grossTotal: sale.grand, exclusive: sale.exclusive, tax: sale.tax,
+            useTax: sale.useTax, grandTotal: sale.grand,
+            tender: sale.tender, balance: sale.balance,
+            customerName: sale.customer.name, customerPhone: sale.customer.phone,
+            customerAddress: sale.customer.address, customerTin: sale.customer.tin,
+            dueDate: due, notes: sale.customer.notes
+        };
+    }
+
+    /* ---------- Debts ---------- */
+    function renderDebts() {
+        const open = mem.sales.filter(s => s.balance > 0).sort((a, b) => b.ts - a.ts);
+        const body = document.getElementById('debt-table-body');
+        const pad = n => String(n).padStart(2, '0');
+        body.innerHTML = open.map(s => {
+            const d = new Date(s.ts);
+            const badge = s.status === 'partial' ? 'partial' : 'unpaid';
+            return `<tr>
+                <td><b>${s.invNo}</b></td>
+                <td>${esc(s.customer.name) || '—'}</td>
+                <td>${pad(d.getDate())}-${pad(d.getMonth()+1)}-${d.getFullYear()}</td>
+                <td class="tr">${s.grand.toLocaleString()}</td>
+                <td class="tr"><b>${s.balance.toLocaleString()}</b></td>
+                <td style="text-align:center;"><span class="badge ${badge}">${t(badge)}</span></td>
+                <td><button class="mini-btn" onclick="openPaymentModal('${s.id}')" data-i18n="recordPay">Record payment</button></td>
+            </tr>`;
+        }).join('');
+        applyLangTo(body);
+        document.getElementById('debt-empty').style.display = open.length ? 'none' : 'block';
+        document.getElementById('debt-total').innerText = open.reduce((s, x) => s + x.balance, 0).toLocaleString();
+        document.getElementById('debt-count').innerText = open.length;
+    }
+    let payingSaleId = null;
+    function openPaymentModal(id) {
+        const s = mem.sales.find(x => x.id === id); if (!s) return;
+        payingSaleId = id;
+        document.getElementById('pay-inv-no').innerText = s.invNo;
+        document.getElementById('pay-balance').innerText = s.balance.toLocaleString();
+        document.getElementById('pay-amount').value = s.balance;
+        openModal('payment-modal');
+    }
+    async function submitDebtPayment() {
+        const s = mem.sales.find(x => x.id === payingSaleId); if (!s) return;
+        const amt = Math.max(0, parseFloat(document.getElementById('pay-amount').value) || 0);
+        if (amt <= 0) return;
+        s.paid += amt; s.balance = Math.max(0, s.grand - s.paid);
+        s.status = s.balance === 0 ? 'paid' : 'partial'; s.dirty = true;
+        await idbPut('sales', s);
+        closeModal('payment-modal');
+        renderDebts();
+        showToast(t('payRecorded'));
+    }
+
+    /* ---------- Reports ---------- */
+    function renderReports() {
+        const range = document.getElementById('report-range').value;
+        const now = Date.now();
+        let from = 0;
+        if (range === 'today') { const d = new Date(); d.setHours(0,0,0,0); from = d.getTime(); }
+        else if (range === '7') from = now - 7 * 864e5;
+        else if (range === '30') from = now - 30 * 864e5;
+        const sales = mem.sales.filter(s => s.ts >= from);
+        const revenue = sales.reduce((s, x) => s + x.grand, 0);
+        const items = sales.reduce((s, x) => s + x.items.reduce((a, i) => a + i.qty, 0), 0);
+        document.getElementById('rep-revenue').innerText = revenue.toLocaleString();
+        document.getElementById('rep-sales').innerText = sales.length;
+        document.getElementById('rep-avg').innerText = (sales.length ? Math.round(revenue / sales.length) : 0).toLocaleString();
+        document.getElementById('rep-items').innerText = items;
+        // top products
+        const map = {};
+        sales.forEach(s => s.items.forEach(i => {
+            if (!map[i.id]) map[i.id] = { name: i.name, qty: 0, rev: 0 };
+            map[i.id].qty += i.qty; map[i.id].rev += i.price * i.qty;
+        }));
+        const top = Object.values(map).sort((a, b) => b.rev - a.rev).slice(0, 8);
+        document.getElementById('rep-top-body').innerHTML = top.map(x =>
+            `<tr><td>${esc(x.name)}</td><td style="text-align:center;">${x.qty}</td><td class="tr">${x.rev.toLocaleString()}</td></tr>`).join('');
+        document.getElementById('rep-empty').style.display = sales.length ? 'none' : 'block';
+    }
+
+    /* ---------- small utils ---------- */
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function t(key) { return (translations[currentLang] && translations[currentLang][key]) || (translations.en && translations.en[key]) || key; }
+    function applyLangTo(scope) {
+        (scope || document).querySelectorAll('[data-i18n]').forEach(el => {
+            const k = el.getAttribute('data-i18n'); if (translations[currentLang] && translations[currentLang][k]) el.innerText = translations[currentLang][k];
+        });
+    }
+
+    // Online/offline indicator
+    function updateSyncPill() {
+        const online = navigator.onLine;
+        const dot = document.getElementById('sync-dot'), txt = document.getElementById('sync-text');
+        if (!dot) return;
+        dot.classList.toggle('offline', !online);
+        txt.innerText = online ? t('syncOnline') : t('syncOffline');
+    }
+    window.addEventListener('online', updateSyncPill);
+    window.addEventListener('offline', updateSyncPill);
+
+    // Refresh whichever tab is shown
+    function refreshActiveViews() {
+        renderCart(); renderInventory(); renderCustomers(); renderDebts(); renderReports(); refreshQuickChips();
+    }
+
+    // Build invoice data straight from cart (kept for compatibility; checkout now uses saleToInvoice)
+    function buildInvoiceData(number) {
+        const tot = cartTotals();
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        const cust = grabCustomer();
+        let due = cust.due; if (due) { const d = new Date(due); due = `${pad(d.getDate())}-${pad(d.getMonth()+1)}-${d.getFullYear()}`; }
+        return {
+            invNo: INVOICE_CONFIG.invoicePrefix + String(number).padStart(4, '0'),
+            dateStr: `${pad(now.getDate())}-${pad(now.getMonth()+1)}-${now.getFullYear()}`,
+            timeStr: `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`,
+            items: cart.map(c => ({ name: c.name, price: c.price, qty: c.qty })),
+            grossTotal: tot.grand, exclusive: tot.exclusive, tax: tot.tax, useTax: tot.useTax, grandTotal: tot.grand,
+            customerName: cust.name, customerPhone: cust.phone, customerAddress: cust.address,
+            customerTin: cust.tin, dueDate: due, notes: cust.notes
+        };
+    }
+
+
+    // Render the invoice into a print-ready popup window
+    function openInvoiceWindow(r) {
+        const C = INVOICE_CONFIG;
+        const money = n => n.toLocaleString(undefined, { minimumFractionDigits: 0 });
+
+        const itemsHtml = r.items.map((it, i) => {
+            const lineTotal = it.price * it.qty;
+            return `<tr>
+                <td class="tc">${i + 1}</td>
+                <td>${it.name}</td>
+                <td class="tr">${money(it.price)}</td>
+                <td class="tc">${it.qty}</td>
+                <td class="tr">${money(lineTotal)}</td>
+            </tr>`;
+        }).join('');
+
+        const bizMeta = [];
+        if (C.tin) bizMeta.push(`TIN: ${C.tin}`);
+        if (C.vrn) bizMeta.push(`VRN: ${C.vrn}`);
+        if (C.taxOffice) bizMeta.push(`Tax Office: ${C.taxOffice}`);
+
+        const custRows = [];
+        if (r.customerName)    custRows.push(`<div><b>${r.customerName}</b></div>`);
+        if (r.customerAddress) custRows.push(`<div>${r.customerAddress}</div>`);
+        if (r.customerPhone)   custRows.push(`<div>Tel: ${r.customerPhone}</div>`);
+        if (r.customerTin)     custRows.push(`<div>TIN: ${r.customerTin}</div>`);
+        if (custRows.length === 0) custRows.push(`<div class="muted">—</div>`);
+
+        const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>Invoice ${r.invNo}</title>
+<style>
+  @page { size: A5; margin: 12mm; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px; background: #fff; color: #1e293b;
+         font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; line-height: 1.5; }
+  .inv-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; border-bottom: 3px solid #1e293b; padding-bottom: 16px; }
+  .biz-name { font-size: 22px; font-weight: 800; color: #1e293b; letter-spacing: 0.3px; }
+  .biz-sub { font-size: 12px; color: #64748b; line-height: 1.6; margin-top: 4px; }
+  .inv-title { text-align: right; }
+  .inv-title h1 { margin: 0; font-size: 30px; letter-spacing: 3px; color: #4f46e5; font-weight: 800; }
+  .inv-title .no { font-size: 14px; font-weight: 700; color: #1e293b; margin-top: 4px; }
+  .inv-title .dt { font-size: 12px; color: #64748b; margin-top: 2px; }
+  .parties { display: flex; justify-content: space-between; gap: 20px; margin: 20px 0; }
+  .party { flex: 1; }
+  .party .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #4f46e5; font-weight: 700; margin-bottom: 6px; }
+  .party div { line-height: 1.55; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
+  thead th { background: #1e293b; color: #fff; padding: 9px 10px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  tbody td { padding: 9px 10px; border-bottom: 1px solid #e2e8f0; }
+  tbody tr:nth-child(even) { background: #f8fafc; }
+  .tr { text-align: right; } .tc { text-align: center; }
+  .totals { margin-top: 14px; margin-left: auto; width: 55%; }
+  .totals .row { display: flex; justify-content: space-between; padding: 5px 10px; }
+  .totals .grand { background: #eef2ff; border: 1.5px solid #4f46e5; border-radius: 8px; font-size: 18px; font-weight: 800; color: #1e293b; padding: 11px 12px; margin-top: 6px; }
+  .pay-box { margin-top: 22px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; }
+  .pay-box .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #4f46e5; font-weight: 700; margin-bottom: 5px; }
+  .pay-box .lipa { font-size: 18px; font-weight: 800; color: #1e293b; letter-spacing: 1px; }
+  .notes { margin-top: 16px; font-size: 12px; color: #64748b; }
+  .notes b { color: #1e293b; }
+  .foot { margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 12px; text-align: center; font-size: 11px; color: #8a9990; }
+  .muted { color: #8a9990; }
+  @media print { .noprint { display: none !important; } body { padding: 0; } }
+  .noprint { text-align:center; margin: 22px 0 0; }
+  .noprint button { font-family: inherit; font-size: 13px; padding: 9px 20px; margin: 0 5px; border: 1px solid #1e293b; background:#fff; cursor:pointer; border-radius: 6px; font-weight: 700; }
+  .noprint button.p { background:#1e293b; color:#fff; }
+</style></head><body>
+  <div class="inv-head">
+    <div style="display:flex;align-items:flex-start;gap:14px;">
+      ${C.logo ? `<img src="${C.logo}" style="width:60px;height:60px;object-fit:contain;border-radius:8px;flex-shrink:0;">` : ''}
+      <div>
+        <div class="biz-name">${C.businessName}</div>
+        <div class="biz-sub">
+          ${C.line2 || ''}${C.city ? '<br>' + C.city : ''}${C.country ? ', ' + C.country : ''}
+          ${bizMeta.length ? '<br>' + bizMeta.join(' &nbsp;·&nbsp; ') : ''}
+        </div>
+      </div>
+    </div>
+    <div class="inv-title">
+      <h1>INVOICE</h1>
+      <div class="no">${r.invNo}</div>
+      <div class="dt">${r.dateStr} ${r.timeStr}</div>
+      ${r.dueDate ? `<div class="dt">Due: ${r.dueDate}</div>` : ''}
+    </div>
+  </div>
+
+  <div class="parties">
+    <div class="party">
+      <div class="lbl">Bill To / Mteja</div>
+      ${custRows.join('')}
+    </div>
+  </div>
+
+  <table>
+    <thead><tr>
+      <th style="width:34px;">#</th>
+      <th>Description</th>
+      <th class="tr">Price</th>
+      <th class="tc">Qty</th>
+      <th class="tr">Amount</th>
+    </tr></thead>
+    <tbody>${itemsHtml}</tbody>
+  </table>
+
+  <div class="totals">
+    ${r.useTax ? `
+    <div class="row"><span>Subtotal (excl. tax)</span><span>${C.currency} ${money(r.exclusive)}</span></div>
+    <div class="row"><span>VAT (${Math.round(C.taxRate*100)}%)</span><span>${C.currency} ${money(r.tax)}</span></div>` : `
+    <div class="row"><span>Subtotal</span><span>${C.currency} ${money(r.grandTotal)}</span></div>`}
+    <div class="row grand"><span>TOTAL</span><span>${C.currency} ${money(r.grandTotal)}</span></div>
+  </div>
+
+  ${(C.payLipa || C.payOwner || C.payMethods) ? `<div class="pay-box">
+    <div class="lbl">💳 Payment / Malipo${C.payLipa ? ' — NMB Lipa Namba' : ''}</div>
+    ${C.payLipa ? `<div class="lipa">${C.payLipa}</div>` : ''}
+    ${C.payOwner ? `<div class="muted" style="font-size:12px;margin-top:3px;">${C.payOwner}</div>` : ''}
+    ${C.payMethods ? `<div class="muted" style="font-size:11px;margin-top:4px;">${C.payMethods}</div>` : ''}
+  </div>` : ''}
+
+  ${r.notes ? `<div class="notes"><b>Notes:</b> ${r.notes}</div>` : ''}
+  ${C.terms ? `<div class="notes"><b>Terms:</b> ${C.terms}</div>` : ''}
+
+  <div class="foot">Asante kwa biashara yako! · Thank you for your business!</div>
+
+  <div class="noprint">
+    <button class="p" onclick="window.print()">🖨️ Print / Save PDF</button>
+    <button onclick="window.close()">Close</button>
+  </div>
+  <script>
+    window.onload = function(){ setTimeout(function(){ try{ window.print(); }catch(e){} }, 400); };
+  <\/script>
+</body></html>`;
+
+        const w = window.open('', '_blank', 'width=560,height=760');
+        if (!w) { alert(currentLang === 'sw' ? 'Ruhusu pop-up ili kuchapisha invoice.' : 'Please allow pop-ups to print the invoice.'); return; }
+        w.document.open();
+        w.document.write(html);
+        w.document.close();
+    }
+
+    // Boot
+    window.addEventListener('DOMContentLoaded', async function () {
+        changeLanguage(currentLang); // apply default language to hardcoded text
+        await initStore();
+        refreshActiveViews();
+        updateSyncPill();
+
+        // wire search box
+        const search = document.getElementById('pos-search');
+        if (search) {
+            search.addEventListener('input', e => posSearch(e.target.value));
+            search.addEventListener('keydown', handleSearchKey);
+        }
+        // global shortcuts: F2 = checkout, focus search on typing letters when on sales tab
+        document.addEventListener('keydown', e => {
+            if (e.key === 'F2') { e.preventDefault(); if (document.getElementById('app-viewport').style.display !== 'none') openCheckout(); }
+        });
+    });
 </script>
 </body>
 </html>
