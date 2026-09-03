@@ -284,7 +284,7 @@
             <div class="pricing-grid">
                 <div class="price-card">
                     <div class="tier-name">SMALL BUSINESS</div>
-                    <div class="tier-price" id="price-small">TSh 15,000 <span data-i18n="perMonth">/ Mwezi</span></div>
+                    <div class="tier-price" id="price-small">TSh 60,000 <span data-i18n="perMonth">/ Mwezi</span></div>
                     <p style="font-size: 12px; color: var(--text-muted);" data-i18n="smallDesc">Inafaa kwa maduka madogo na wauzaji wa rejareja.</p>
                     <ul class="tier-features">
                         <li data-i18n="smallF1">Duka 1 Moja Tu</li>
@@ -297,7 +297,7 @@
                 </div>
                 <div class="price-card popular" id="card-popular" data-popular-label="Inayosauriwa Zaidi">
                     <div class="tier-name">MEDIUM BUSINESS</div>
-                    <div class="tier-price" id="price-medium">TSh 35,000 <span data-i18n="perMonth">/ Mwezi</span></div>
+                    <div class="tier-price" id="price-medium">TSh 80,000 <span data-i18n="perMonth">/ Mwezi</span></div>
                     <p style="font-size: 12px; color: var(--text-muted);" data-i18n="medDesc">Inafaa kwa maduka yenye mzunguko mkubwa wa mauzo.</p>
                     <ul class="tier-features">
                         <li data-i18n="medF1">Maduka Hadi 2 (Multi-Branch)</li>
@@ -310,7 +310,7 @@
                 </div>
                 <div class="price-card">
                     <div class="tier-name">ENTERPRISE</div>
-                    <div class="tier-price" id="price-enterprise">TSh 75,000 <span data-i18n="perMonth">/ Mwezi</span></div>
+                    <div class="tier-price" id="price-enterprise">TSh 120,000 <span data-i18n="perMonth">/ Mwezi</span></div>
                     <p style="font-size: 12px; color: var(--text-muted);" data-i18n="entDesc">Kwa makampuni na maduka yenye matawi mengi.</p>
                     <ul class="tier-features">
                         <li data-i18n="entF1">Maduka Bila Kikomo</li>
@@ -594,16 +594,18 @@
         <p style="font-size:13px;color:var(--text-muted);margin:12px 0;" data-i18n="ownerIntro">You are signed in as the platform owner. This account oversees all businesses and does not run a POS itself. Below are all registered tenants.</p>
         <div class="stat-grid">
             <div class="stat accent"><div class="v" id="owner-count">0</div><div class="l" data-i18n="ownerTenants">Registered businesses</div></div>
+            <div class="stat"><div class="v" id="owner-pending-count" style="color:var(--gold);">0</div><div class="l" data-i18n="ownerPending">Pending payments</div></div>
         </div>
         <div style="overflow:auto;max-height:60vh;">
             <table class="data-table">
                 <thead><tr>
                     <th data-i18n="thName">Business</th>
                     <th data-i18n="obType">Type</th>
-                    <th data-i18n="thPhone">Phone</th>
                     <th data-i18n="ownerEmail">Owner email</th>
                     <th data-i18n="lblPlan">Plan</th>
                     <th data-i18n="thStatus">Status</th>
+                    <th data-i18n="lblExpires">Expires</th>
+                    <th data-i18n="paymentCol">Payment</th>
                 </tr></thead>
                 <tbody id="owner-tenants-body"></tbody>
             </table>
@@ -615,6 +617,26 @@
 <div id="subscription-modal" class="modal">
     <div class="modal-box">
         <h3 data-i18n="modalPayTitle">Lipia Kifurushi cha HALLTAN BUSINESS POS</h3><br>
+        <div class="field-row">
+            <div class="form-group">
+                <label data-i18n="choosePlan">Choose plan</label>
+                <select id="pay-tier" onchange="updatePayAmount()">
+                    <option value="Small">Small — 60,000/mo</option>
+                    <option value="Medium">Medium — 80,000/mo</option>
+                    <option value="Enterprise">Enterprise — 120,000/mo</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label data-i18n="chooseDuration">Duration</label>
+                <select id="pay-duration" onchange="updatePayAmount()">
+                    <option value="1">1 month</option>
+                    <option value="3">3 months</option>
+                    <option value="6">6 months (10% off)</option>
+                    <option value="12">12 months (20% off)</option>
+                </select>
+            </div>
+        </div>
+        <div class="change-box" style="margin:6px 0 14px;"><span data-i18n="amountToPay">Amount to pay</span><span>TSh <span id="pay-amount-display">60,000</span></span></div>
         <p style="font-size: 12.5px; color: var(--text-muted);" data-i18n="modalPayDesc">Tuma malipo kwa njia yoyote hapa chini, kisha ingiza Kumbukumbu ya Muamala (Transaction ID):</p><br>
         <div class="pay-methods-modal">
             <div class="pay-method-line">
@@ -892,6 +914,10 @@
             ownerTitle: "Kituo cha Mmiliki wa Mfumo", ownerSignedIn: "Umeingia kama", ownerRefresh: "↻ Onyesha upya",
             ownerIntro: "Umeingia kama mmiliki wa mfumo. Akaunti hii inasimamia biashara zote na haitumii POS yenyewe. Hapa chini ni biashara zote zilizosajiliwa.",
             ownerTenants: "Biashara zilizosajiliwa", ownerEmail: "Barua pepe ya mmiliki", ownerNoTenants: "Hakuna biashara iliyosajiliwa bado", ownerLoadErr: "Imeshindwa kupakua orodha ya biashara.",
+            choosePlan: "Chagua kifurushi", chooseDuration: "Muda", amountToPay: "Kiasi cha kulipa",
+            ownerPending: "Malipo yanayosubiri", paymentCol: "Malipo", pendingWord: "Inasubiri", approve: "Thibitisha", reject: "Kataa",
+            noPending: "Hakuna malipo yanayosubiri.", approveConfirm: "Thibitisha malipo? {tier} · miezi {months} · TSh {amount}. Akaunti itawashwa na muda kuongezwa.",
+            approvedOk: "Malipo yamethibitishwa na akaunti imewashwa.", approveErr: "Imeshindwa kuthibitisha:", rejectConfirm: "Kataa malipo haya?", rejectedOk: "Malipo yamekataliwa.",
             errBizName: "Jina la biashara linahitajika", errLogoSize: "Nembo ni kubwa mno (kikomo 512KB)"
         },
         en: {
@@ -974,6 +1000,10 @@
             ownerTitle: "Platform Owner Console", ownerSignedIn: "Signed in as", ownerRefresh: "↻ Refresh",
             ownerIntro: "You are signed in as the platform owner. This account oversees all businesses and does not run a POS itself. Below are all registered tenants.",
             ownerTenants: "Registered businesses", ownerEmail: "Owner email", ownerNoTenants: "No businesses registered yet", ownerLoadErr: "Couldn't load the business list.",
+            choosePlan: "Choose plan", chooseDuration: "Duration", amountToPay: "Amount to pay",
+            ownerPending: "Pending payments", paymentCol: "Payment", pendingWord: "Pending", approve: "Approve", reject: "Reject",
+            noPending: "No pending payment.", approveConfirm: "Approve payment? {tier} · {months} months · TSh {amount}. Account will be activated and extended.",
+            approvedOk: "Payment approved and account activated.", approveErr: "Approval failed:", rejectConfirm: "Reject this payment?", rejectedOk: "Payment rejected.",
             errBizName: "Business name is required", errLogoSize: "Logo is too large (max 512KB)"
         }
     };
@@ -1040,7 +1070,7 @@
     let currentUser = null;
     let isPlatformAdmin = false;
     let selectedDurationMonths = 1;
-    const basePrices = { Small: 15000, Medium: 35000, Enterprise: 75000 };
+    const basePrices = { Small: 60000, Medium: 80000, Enterprise: 120000 };
 
     if (firebaseReady) auth.onAuthStateChanged(user => {
         if (user) {
@@ -1151,28 +1181,99 @@
         if (!firebaseReady || !db) return;
         try {
             const snap = await db.collection('tenants').get();
-            let n = 0;
+            let n = 0, pendingCount = 0;
             const rows = [];
             snap.forEach(doc => {
                 const d = doc.data() || {};
                 const p = d.businessProfile || {};
                 n++;
+                const pend = d.pendingPayment;
+                let actionCell = '—';
+                if (pend && (d.status === 'Pending verification')) {
+                    pendingCount++;
+                    actionCell = `<div style="display:flex;flex-direction:column;gap:4px;">
+                        <span class="badge partial">${t('pendingWord')}: ${pend.tier} · ${pend.months}mo · TSh ${(pend.amount||0).toLocaleString()}</span>
+                        <span style="font-size:11px;color:var(--text-muted);">Ref: ${esc(pend.txRef||'—')}</span>
+                        <div style="display:flex;gap:6px;margin-top:2px;">
+                          <button class="mini-btn" style="color:var(--success);border-color:var(--success);" onclick="approvePayment('${doc.id}')" data-i18n="approve">Approve</button>
+                          <button class="mini-btn danger" onclick="rejectPayment('${doc.id}')" data-i18n="reject">Reject</button>
+                        </div></div>`;
+                }
+                const exp = d.expiresAt ? new Date(d.expiresAt).toLocaleDateString() : '—';
                 rows.push(`<tr>
                     <td><b>${esc(p.name || '—')}</b></td>
                     <td>${esc(p.type || '—')}</td>
-                    <td>${esc(p.phone || '—')}</td>
                     <td>${esc(d.ownerEmail || '—')}</td>
                     <td>${esc(d.tier || '—')}</td>
                     <td>${esc(d.status || '—')}</td>
+                    <td>${exp}</td>
+                    <td>${actionCell}</td>
                 </tr>`);
             });
             body.innerHTML = rows.join('');
             if (countEl) countEl.innerText = n;
+            const pc = document.getElementById('owner-pending-count');
+            if (pc) pc.innerText = pendingCount;
             if (empty) empty.style.display = n ? 'none' : 'block';
         } catch (e) {
             console.warn('owner tenants load', e);
             if (empty) { empty.style.display = 'block'; empty.innerHTML = '<div class="ico">⚠️</div><span>' + t('ownerLoadErr') + '</span>'; }
         }
+    }
+
+    // Owner approves a pending payment → activate + extend expiry by paid duration.
+    async function approvePayment(tenantUid) {
+        if (!firebaseReady || !db || !isPlatformAdmin) return;
+        try {
+            const ref = db.collection('tenants').doc(tenantUid);
+            const doc = await ref.get();
+            const d = doc.data() || {};
+            const pend = d.pendingPayment;
+            if (!pend) { alert(t('noPending')); return; }
+            if (!confirm(t('approveConfirm').replace('{tier}', pend.tier).replace('{months}', pend.months).replace('{amount}', (pend.amount||0).toLocaleString()))) return;
+            // extend from the later of now or current expiry
+            const now = Date.now();
+            const base = (d.expiresAt && d.expiresAt > now) ? d.expiresAt : now;
+            const newExpiry = base + pend.months * 30 * 24 * 60 * 60 * 1000; // ~months
+            await ref.set({
+                tier: pend.tier,
+                status: 'Active',
+                expiresAt: newExpiry,
+                pendingPayment: firebase.firestore.FieldValue.delete()
+            }, { merge: true });
+            // mark the payment record approved
+            const pays = await ref.collection('payments').where('txRef', '==', pend.txRef).get();
+            const batch = db.batch();
+            pays.forEach(pd => batch.update(pd.ref, { status: 'approved', approvedAt: now }));
+            await batch.commit();
+            loadOwnerTenants();
+            alert(t('approvedOk'));
+        } catch (e) {
+            console.warn('approve', e);
+            alert(t('approveErr') + ' ' + (e && e.message ? e.message : e));
+        }
+    }
+    async function rejectPayment(tenantUid) {
+        if (!firebaseReady || !db || !isPlatformAdmin) return;
+        if (!confirm(t('rejectConfirm'))) return;
+        try {
+            const ref = db.collection('tenants').doc(tenantUid);
+            const doc = await ref.get();
+            const d = doc.data() || {};
+            const pend = d.pendingPayment;
+            await ref.set({
+                status: (d.expiresAt && d.expiresAt > Date.now()) ? 'Active' : 'Payment rejected',
+                pendingPayment: firebase.firestore.FieldValue.delete()
+            }, { merge: true });
+            if (pend) {
+                const pays = await ref.collection('payments').where('txRef', '==', pend.txRef).get();
+                const batch = db.batch();
+                pays.forEach(pd => batch.update(pd.ref, { status: 'rejected', rejectedAt: Date.now() }));
+                await batch.commit();
+            }
+            loadOwnerTenants();
+            alert(t('rejectedOk'));
+        } catch (e) { console.warn('reject', e); }
     }
 
     /* ---------------- Cloud sync (local-first, background) ----------------
@@ -1302,13 +1403,59 @@
         else if (tabId === 'account-tab') applyBusinessProfile();
         else if (tabId === 'sales-tab') { renderCart(); setTimeout(() => { const s = document.getElementById('pos-search'); if (s) s.focus(); }, 40); }
     }
-    function showPaymentModal() { document.getElementById('subscription-modal').style.display = 'flex'; }
+    function showPaymentModal() { updatePayAmount(); document.getElementById('subscription-modal').style.display = 'flex'; }
     function closeSubscriptionModal() { document.getElementById('subscription-modal').style.display = 'none'; }
-    function submitSubscriptionPayment() {
-        let tx = document.getElementById('pay-tx-id').value;
-        if(!tx) return alert(currentLang === 'sw' ? "Andika kumbukumbu ya muamala!" : "Please enter your transaction ID!");
-        alert(currentLang === 'sw' ? "Ombi la malipo limepokelewa!" : "Payment submitted for verification!");
-        closeSubscriptionModal();
+
+    // Base monthly prices + duration discounts (kept in sync with the landing tiers)
+    const TIER_PRICES = { Small: 60000, Medium: 80000, Enterprise: 120000 };
+    function durationDiscount(months) { return months === 12 ? 0.80 : months === 6 ? 0.90 : 1; }
+    function computeSubAmount(tier, months) {
+        return Math.round((TIER_PRICES[tier] || 0) * months * durationDiscount(months));
+    }
+    function updatePayAmount() {
+        const tier = document.getElementById('pay-tier').value;
+        const months = parseInt(document.getElementById('pay-duration').value) || 1;
+        const amt = computeSubAmount(tier, months);
+        const el = document.getElementById('pay-amount-display');
+        if (el) el.innerText = amt.toLocaleString();
+    }
+
+    async function submitSubscriptionPayment() {
+        const tx = document.getElementById('pay-tx-id').value.trim();
+        if (!tx) { alert(currentLang === 'sw' ? "Andika kumbukumbu ya muamala!" : "Please enter your transaction reference!"); return; }
+        if (!firebaseReady || !db || !currentUser) {
+            alert(currentLang === 'sw' ? "Lazima uwe umeingia mtandaoni kuwasilisha malipo." : "You must be signed in and online to submit a payment.");
+            return;
+        }
+        const tier = document.getElementById('pay-tier').value;
+        const months = parseInt(document.getElementById('pay-duration').value) || 1;
+        const amount = computeSubAmount(tier, months);
+        const payment = {
+            id: uid('PAY'),
+            tier, months, amount,
+            txRef: tx,
+            status: 'pending',
+            submittedAt: Date.now(),
+            ownerEmail: currentUser.email
+        };
+        try {
+            // record the payment under this tenant
+            await db.collection('tenants').doc(currentUser.uid).collection('payments').doc(payment.id).set(payment);
+            // flag the tenant as awaiting verification
+            await db.collection('tenants').doc(currentUser.uid).set({
+                status: 'Pending verification',
+                pendingPayment: { tier, months, amount, txRef: tx, submittedAt: payment.submittedAt }
+            }, { merge: true });
+            const banner = document.getElementById('current-status-display');
+            if (banner) banner.innerText = 'Pending verification';
+            closeSubscriptionModal();
+            alert(currentLang === 'sw'
+                ? "Ombi la malipo limepokelewa. Litathibitishwa na msimamizi hivi karibuni."
+                : "Payment submitted. It will be confirmed by the platform owner shortly.");
+        } catch (e) {
+            console.warn('submit payment', e);
+            alert("Could not submit payment: " + (e && e.message ? e.message : e));
+        }
     }
 
     /* =========================================================
