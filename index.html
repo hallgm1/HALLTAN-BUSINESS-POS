@@ -8,6 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -417,7 +418,12 @@
         <div class="card">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
                 <h3 data-i18n="stockSec">Inventory &amp; Products</h3>
-                <button class="btn" onclick="openProductModal()" data-i18n="btnAddProduct">＋ Add Product</button>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn btn-ghost" onclick="document.getElementById('import-file').click()" data-i18n="btnImport">⭳ Import Excel/CSV</button>
+                    <button class="btn btn-ghost" onclick="downloadImportTemplate()" data-i18n="btnTemplate">Template</button>
+                    <button class="btn" onclick="openProductModal()" data-i18n="btnAddProduct">＋ Add Product</button>
+                </div>
+                <input type="file" id="import-file" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleInventoryImport(event)">
             </div>
             <br>
             <div class="toolbar">
@@ -562,6 +568,46 @@
                     <div style="font-size:11px;color:var(--text-muted);margin-top:6px;" data-i18n="uidHint">Needed once to grant platform-admin access in the Firebase Console.</div>
                 </div>
             </div>
+
+            <div class="card" style="box-shadow:none;border:1px solid var(--border);margin-top:14px;">
+                <div class="l" style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;" data-i18n="dataAndAccount">Data &amp; Account</div>
+                <p style="font-size:13px;color:var(--text-muted);margin:8px 0 12px;" data-i18n="exportHint">Download a full copy of this account's data (profile, products, customers, sales) as Excel + JSON.</p>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn btn-ghost" onclick="exportAccountData('manual')" data-i18n="btnExport">⭳ Export my data</button>
+                    <button class="btn" style="background:var(--danger);border-color:var(--danger);" onclick="deleteMyAccount()" data-i18n="btnDeleteAcct">Delete my account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PLATFORM OWNER VIEW (only for platform admins) -->
+<div id="owner-viewport" style="display:none;padding:22px;max-width:1150px;margin:0 auto;width:100%;">
+    <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+            <div>
+                <h2 style="margin:0;color:var(--primary);" data-i18n="ownerTitle">Platform Owner Console</h2>
+                <div style="font-size:13px;color:var(--text-muted);margin-top:2px;"><span data-i18n="ownerSignedIn">Signed in as</span> <b id="owner-email">—</b> · <span data-i18n="accountRole">Role</span>: <b>Platform Admin</b></div>
+            </div>
+            <button class="btn btn-ghost" onclick="loadOwnerTenants()" data-i18n="ownerRefresh">↻ Refresh</button>
+        </div>
+        <p style="font-size:13px;color:var(--text-muted);margin:12px 0;" data-i18n="ownerIntro">You are signed in as the platform owner. This account oversees all businesses and does not run a POS itself. Below are all registered tenants.</p>
+        <div class="stat-grid">
+            <div class="stat accent"><div class="v" id="owner-count">0</div><div class="l" data-i18n="ownerTenants">Registered businesses</div></div>
+        </div>
+        <div style="overflow:auto;max-height:60vh;">
+            <table class="data-table">
+                <thead><tr>
+                    <th data-i18n="thName">Business</th>
+                    <th data-i18n="obType">Type</th>
+                    <th data-i18n="thPhone">Phone</th>
+                    <th data-i18n="ownerEmail">Owner email</th>
+                    <th data-i18n="lblPlan">Plan</th>
+                    <th data-i18n="thStatus">Status</th>
+                </tr></thead>
+                <tbody id="owner-tenants-body"></tbody>
+            </table>
+            <div id="owner-empty" class="empty-state"><div class="ico">🏢</div><span data-i18n="ownerNoTenants">No businesses registered yet</span></div>
         </div>
     </div>
 </div>
@@ -801,6 +847,15 @@
             custDetails: "Taarifa za Mteja (hiari)", custName: "Jina la Mteja", custPhone: "Simu", custAddress: "Anwani / Eneo",
             custTin: "TIN (Biashara)", custDue: "Tarehe ya Kulipa", custNotes: "Maelezo", completeCheckout: "Kamilisha Mauzo &amp; Invoice",
             stockSec: "Bidhaa na Stoki", btnAddProduct: "＋ Ongeza Bidhaa", filterPh: "Chuja bidhaa…", products: "bidhaa",
+            btnImport: "⭳ Ingiza Excel/CSV", btnTemplate: "Kiolezo",
+            importError: "Imeshindwa kusoma faili. Hakikisha ni Excel au CSV sahihi.",
+            importEmpty: "Faili halina bidhaa.",
+            importDone: "Zimeongezwa/kusasishwa: {added}. Zilizorukwa: {skipped}.",
+            dataAndAccount: "Data na Akaunti",
+            exportHint: "Pakua nakala kamili ya data ya akaunti hii (wasifu, bidhaa, wateja, mauzo) kama Excel + JSON.",
+            btnExport: "⭳ Pakua data yangu", btnDeleteAcct: "Futa akaunti yangu",
+            delAcctConfirm: "Una uhakika? Data yote ya akaunti hii itafutwa kwenye kifaa na wingu. Nakala itapakuliwa kwanza. Kitendo hiki hakiwezi kutenduliwa.",
+            delAcctDone: "Data imefutwa na nakala imepakuliwa. KUMBUKA: Kufuta kitambulisho chako cha kuingia (Google login) lazima kifanyike na msimamizi kwenye Firebase Console (Authentication → Users). Programu haiwezi kufuta hilo yenyewe.",
             thName: "Jina", thSku: "SKU / Barcode", thCat: "Aina", thStock: "Stoki", invEmpty: "Hakuna bidhaa bado — ongeza ya kwanza",
             debtsSec: "Madeni na Mikopo", debtsHint: "Invoice ambazo hazijalipwa zitaonekana hapa. Rekodi malipo kupunguza deni.",
             outstanding: "Deni lote", openInvoices: "Invoice wazi", thInv: "Invoice", thCust: "Mteja", thDate: "Tarehe", thBalance: "Baki",
@@ -834,6 +889,9 @@
             obLogo: "Nembo ya Biashara (hiari)", obLogoHint: "PNG, JPG, WEBP au SVG · kisizidi 512KB", obLogoRemove: "Ondoa nembo",
             obPayNumber: "NMB Lipa Namba (NMB Pay Number)", obPayName: "Jina la Akaunti / Mpokeaji",
             accountId: "Akaunti na Utambulisho", signedInAs: "Umeingia kama", accountRole: "Wadhifa", accountUid: "Kitambulisho chako (UID)", uidHint: "Kinahitajika mara moja kukupa uwezo wa msimamizi kwenye Firebase Console.",
+            ownerTitle: "Kituo cha Mmiliki wa Mfumo", ownerSignedIn: "Umeingia kama", ownerRefresh: "↻ Onyesha upya",
+            ownerIntro: "Umeingia kama mmiliki wa mfumo. Akaunti hii inasimamia biashara zote na haitumii POS yenyewe. Hapa chini ni biashara zote zilizosajiliwa.",
+            ownerTenants: "Biashara zilizosajiliwa", ownerEmail: "Barua pepe ya mmiliki", ownerNoTenants: "Hakuna biashara iliyosajiliwa bado", ownerLoadErr: "Imeshindwa kupakua orodha ya biashara.",
             errBizName: "Jina la biashara linahitajika", errLogoSize: "Nembo ni kubwa mno (kikomo 512KB)"
         },
         en: {
@@ -871,6 +929,15 @@
             custDetails: "Customer Details (optional)", custName: "Customer Name", custPhone: "Phone", custAddress: "Address / Location",
             custTin: "TIN (Business)", custDue: "Due Date", custNotes: "Notes", completeCheckout: "Complete Sale &amp; Invoice",
             stockSec: "Inventory & Products", btnAddProduct: "＋ Add Product", filterPh: "Filter products…", products: "products",
+            btnImport: "⭳ Import Excel/CSV", btnTemplate: "Template",
+            importError: "Couldn't read the file. Make sure it's a valid Excel or CSV.",
+            importEmpty: "The file has no product rows.",
+            importDone: "Added/updated: {added}. Skipped: {skipped}.",
+            dataAndAccount: "Data & Account",
+            exportHint: "Download a full copy of this account's data (profile, products, customers, sales) as Excel + JSON.",
+            btnExport: "⭳ Export my data", btnDeleteAcct: "Delete my account",
+            delAcctConfirm: "Are you sure? All data for this account will be deleted from this device and the cloud. A copy is downloaded first. This cannot be undone.",
+            delAcctDone: "Data deleted and a copy downloaded. NOTE: Removing your sign-in identity (Google login) must be done by an admin in the Firebase Console (Authentication → Users). The app cannot delete that itself.",
             thName: "Name", thSku: "SKU / Barcode", thCat: "Category", thStock: "Stock", invEmpty: "No products yet — add your first product",
             debtsSec: "Debts & Credit", debtsHint: "Unpaid and partially-paid invoices appear here. Record payments to clear balances.",
             outstanding: "Outstanding", openInvoices: "Open invoices", thInv: "Invoice", thCust: "Customer", thDate: "Date", thBalance: "Balance",
@@ -904,6 +971,9 @@
             obLogo: "Business Logo (optional)", obLogoHint: "PNG, JPG, WEBP or SVG · max 512KB", obLogoRemove: "Remove logo",
             obPayNumber: "NMB Pay Number (NMB Lipa Namba)", obPayName: "Account / Recipient Name",
             accountId: "Account & Identity", signedInAs: "Signed in as", accountRole: "Role", accountUid: "Your User ID (UID)", uidHint: "Needed once to grant platform-admin access in the Firebase Console.",
+            ownerTitle: "Platform Owner Console", ownerSignedIn: "Signed in as", ownerRefresh: "↻ Refresh",
+            ownerIntro: "You are signed in as the platform owner. This account oversees all businesses and does not run a POS itself. Below are all registered tenants.",
+            ownerTenants: "Registered businesses", ownerEmail: "Owner email", ownerNoTenants: "No businesses registered yet", ownerLoadErr: "Couldn't load the business list.",
             errBizName: "Business name is required", errLogoSize: "Logo is too large (max 512KB)"
         }
     };
@@ -1013,20 +1083,27 @@
     }
 
     // Look up the tenant record; sync profile down; check platform-admin status.
-    function checkTenantSubscription(user) {
+    async function checkTenantSubscription(user) {
         if (!firebaseReady || !db) { showLandingView(); return; }
-        // Is this user a platform admin? (whitelist doc keyed by UID)
-        db.collection('platformAdmins').doc(user.uid).get()
-            .then(d => { isPlatformAdmin = d.exists; })
-            .catch(() => { isPlatformAdmin = false; });
+        // Resolve platform-admin status FIRST (so we don't nudge an owner to onboard).
+        try {
+            const adminDoc = await db.collection('platformAdmins').doc(user.uid).get();
+            isPlatformAdmin = adminDoc.exists;
+        } catch (e) { isPlatformAdmin = false; }
 
+        // Platform owner: skip the business flow entirely, show the owner view.
+        if (isPlatformAdmin) {
+            showOwnerView();
+            return;
+        }
+
+        // Normal business user from here on.
         db.collection('tenants').doc(user.uid).get().then(async doc => {
             if (doc.exists) {
                 const data = doc.data();
                 if (data.businessProfile && !getBusinessProfile()) {
                     await metaSet('businessProfile', data.businessProfile);
                 }
-                // Pull the user's cloud data down into the local store (background)
                 cloudPullAll(user.uid).catch(e => console.warn('cloud pull', e));
                 if (!data.businessProfile && !getBusinessProfile()) {
                     pendingTenant = { tier: data.tier, status: data.status, ownerEmail: user.email };
@@ -1036,7 +1113,6 @@
                 applyBusinessProfile();
                 showAppView(data);
             } else {
-                // Brand-new user: create a tenant doc, then onboard.
                 const seedTenant = {
                     ownerEmail: user.email,
                     tier: "Small",
@@ -1051,6 +1127,52 @@
             console.warn('tenant check failed', e);
             showLandingView();
         });
+    }
+
+    /* ---------------- Platform Owner view ----------------
+       Only reachable when isPlatformAdmin is true. Reads across the whole
+       tenants collection (allowed by the security rules for admins) and
+       lists every business. No business/POS UI for this account. */
+    function showOwnerView() {
+        document.getElementById('landing-viewport').style.display = 'none';
+        document.getElementById('app-viewport').style.display = 'none';
+        const v = document.getElementById('owner-viewport');
+        if (v) v.style.display = 'block';
+        const emailEl = document.getElementById('owner-email');
+        if (emailEl) emailEl.innerText = (currentUser && currentUser.email) || '';
+        loadOwnerTenants();
+    }
+    async function loadOwnerTenants() {
+        const body = document.getElementById('owner-tenants-body');
+        const empty = document.getElementById('owner-empty');
+        const countEl = document.getElementById('owner-count');
+        if (!body) return;
+        body.innerHTML = '';
+        if (!firebaseReady || !db) return;
+        try {
+            const snap = await db.collection('tenants').get();
+            let n = 0;
+            const rows = [];
+            snap.forEach(doc => {
+                const d = doc.data() || {};
+                const p = d.businessProfile || {};
+                n++;
+                rows.push(`<tr>
+                    <td><b>${esc(p.name || '—')}</b></td>
+                    <td>${esc(p.type || '—')}</td>
+                    <td>${esc(p.phone || '—')}</td>
+                    <td>${esc(d.ownerEmail || '—')}</td>
+                    <td>${esc(d.tier || '—')}</td>
+                    <td>${esc(d.status || '—')}</td>
+                </tr>`);
+            });
+            body.innerHTML = rows.join('');
+            if (countEl) countEl.innerText = n;
+            if (empty) empty.style.display = n ? 'none' : 'block';
+        } catch (e) {
+            console.warn('owner tenants load', e);
+            if (empty) { empty.style.display = 'block'; empty.innerHTML = '<div class="ico">⚠️</div><span>' + t('ownerLoadErr') + '</span>'; }
+        }
     }
 
     /* ---------------- Cloud sync (local-first, background) ----------------
@@ -1093,8 +1215,10 @@
     function showLandingView() {
         document.getElementById('landing-viewport').style.display = 'block';
         document.getElementById('app-viewport').style.display = 'none';
+        const ov = document.getElementById('owner-viewport'); if (ov) ov.style.display = 'none';
     }
     function showAppView(tenantData) {
+        const ov = document.getElementById('owner-viewport'); if (ov) ov.style.display = 'none';
         document.getElementById('landing-viewport').style.display = 'none';
         document.getElementById('app-viewport').style.display = 'block';
         if(tenantData) {
@@ -1400,6 +1524,158 @@
     }
 
     /* ---------- Products / inventory ---------- */
+
+    /* ===== Inventory import from Excel (.xlsx/.xls) or CSV =====
+       Expected columns (header row, case-insensitive; extra columns ignored):
+       name | sku | category | price | stock
+       'name' and 'price' are required per row; others optional. */
+    function downloadImportTemplate() {
+        const rows = [
+            ['name', 'sku', 'category', 'price', 'stock'],
+            ['Brake Pad - Front', 'BP-001', 'Brakes', 85000, 20],
+            ['Oil Filter', 'OF-014', 'Filters', 12000, 50],
+            ['Sample Item (delete me)', '', 'General', 5000, 10]
+        ];
+        try {
+            const ws = XLSX.utils.aoa_to_sheet(rows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Products');
+            XLSX.writeFile(wb, 'halltan-inventory-template.xlsx');
+        } catch (e) {
+            // Fallback: CSV
+            const csv = rows.map(r => r.join(',')).join('\n');
+            downloadBlob(csv, 'halltan-inventory-template.csv', 'text/csv');
+        }
+    }
+
+    function handleInventoryImport(ev) {
+        const file = ev.target.files && ev.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const wb = XLSX.read(data, { type: 'array' });
+                const ws = wb.Sheets[wb.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+                await importProductRows(rows);
+            } catch (err) {
+                console.warn('import parse', err);
+                alert(t('importError'));
+            }
+            ev.target.value = ''; // allow re-importing same file
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    async function importProductRows(rows) {
+        if (!rows || !rows.length) { alert(t('importEmpty')); return; }
+        // Normalize headers to lowercase keys
+        const pick = (obj, keys) => {
+            for (const k of Object.keys(obj)) {
+                if (keys.includes(k.toLowerCase().trim())) return obj[k];
+            }
+            return '';
+        };
+        let added = 0, skipped = 0;
+        for (const r of rows) {
+            const name = String(pick(r, ['name', 'jina', 'product', 'bidhaa'])).trim();
+            const priceRaw = pick(r, ['price', 'bei']);
+            const price = parseFloat(String(priceRaw).replace(/[^\d.]/g, '')) || 0;
+            if (!name || price <= 0) { skipped++; continue; }  // require name + price
+            const sku = String(pick(r, ['sku', 'barcode', 'code'])).trim();
+            const cat = String(pick(r, ['category', 'cat', 'aina', 'kategoria'])).trim();
+            const stock = parseInt(String(pick(r, ['stock', 'qty', 'quantity', 'idadi'])).replace(/[^\d]/g, '')) || 0;
+            // Merge by SKU if present, else by exact name — avoids duplicates on re-import
+            let existing = null;
+            if (sku) existing = mem.products.find(p => (p.sku || '').toLowerCase() === sku.toLowerCase());
+            if (!existing) existing = mem.products.find(p => p.name.toLowerCase() === name.toLowerCase());
+            await addProduct({ id: existing ? existing.id : undefined, name, sku, cat, price, stock }, true);
+            added++;
+        }
+        renderInventory(); refreshQuickChips();
+        alert(t('importDone').replace('{added}', added).replace('{skipped}', skipped));
+    }
+
+    /* ===== Account data export (download) ===== */
+    function downloadBlob(content, filename, type) {
+        const blob = new Blob([content], { type: type || 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+        document.body.removeChild(a); URL.revokeObjectURL(url);
+    }
+    function toCSV(arr) {
+        if (!arr.length) return '';
+        const cols = Object.keys(arr[0]);
+        const esc = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
+        return [cols.join(',')].concat(arr.map(o => cols.map(c => esc(o[c])).join(','))).join('\n');
+    }
+    function exportAccountData(reason) {
+        const profile = getBusinessProfile() || {};
+        const bundle = {
+            exportedAt: new Date().toISOString(),
+            account: (currentUser && currentUser.email) || '',
+            uid: (currentUser && currentUser.uid) || '',
+            reason: reason || 'manual',
+            businessProfile: profile,
+            products: mem.products,
+            customers: mem.customers,
+            sales: mem.sales
+        };
+        // JSON (full fidelity)
+        downloadBlob(JSON.stringify(bundle, null, 2),
+            `halltan-account-${(profile.name || 'data').replace(/\s+/g, '-')}.json`, 'application/json');
+        // Excel workbook with a sheet per dataset (easier for the user to read)
+        try {
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([{ field: 'Business', value: profile.name || '' },
+                { field: 'Phone', value: profile.phone || '' }, { field: 'Type', value: profile.type || '' },
+                { field: 'Location', value: profile.location || '' }, { field: 'Account', value: bundle.account },
+                { field: 'Exported', value: bundle.exportedAt }]), 'Profile');
+            if (mem.products.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(mem.products), 'Products');
+            if (mem.customers.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(mem.customers), 'Customers');
+            if (mem.sales.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(mem.sales.map(s => ({
+                invNo: s.invNo, date: new Date(s.ts).toLocaleString(), customer: (s.customer && s.customer.name) || '',
+                total: s.grand, tender: s.tender, status: s.status, balance: s.balance
+            }))), 'Sales');
+            XLSX.writeFile(wb, `halltan-account-${(profile.name || 'data').replace(/\s+/g, '-')}.xlsx`);
+        } catch (e) { console.warn('xlsx export', e); }
+    }
+
+    /* ===== Delete account (wipes cloud + local data; exports first) ===== */
+    async function deleteMyAccount() {
+        const msg = t('delAcctConfirm');
+        if (!confirm(msg)) return;
+        // 1) Export data first so nothing is lost
+        exportAccountData('account-deletion');
+        // 2) Wipe cloud data (Firestore) if signed in
+        if (firebaseReady && db && currentUser) {
+            const uidv = currentUser.uid;
+            try {
+                for (const store of ['products', 'customers', 'sales']) {
+                    const snap = await db.collection('tenants').doc(uidv).collection(store).get();
+                    const batch = db.batch();
+                    snap.forEach(d => batch.delete(d.ref));
+                    await batch.commit();
+                }
+                await db.collection('tenants').doc(uidv).delete();
+            } catch (e) { console.warn('cloud wipe', e); }
+        }
+        // 3) Wipe local data
+        try {
+            for (const store of ['products', 'customers', 'sales', 'meta']) {
+                const all = await idbAll(store);
+                for (const row of all) await idbDel(store, row.id);
+                mem[store] = store === 'meta' ? {} : [];
+            }
+        } catch (e) { console.warn('local wipe', e); }
+        // 4) Explain the one piece code can't remove
+        alert(t('delAcctDone'));
+        if (firebaseReady && auth && currentUser) { try { await auth.signOut(); } catch (e) {} }
+        location.reload();
+    }
+
     async function addProduct(p, silent) {
         const prod = { id: p.id || uid('P'), name: p.name, sku: p.sku || '', cat: p.cat || '', price: +p.price || 0, stock: +p.stock || 0, updatedAt: Date.now(), dirty: true };
         const i = mem.products.findIndex(x => x.id === prod.id);
