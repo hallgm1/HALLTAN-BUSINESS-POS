@@ -549,7 +549,6 @@
                 <div class="l" style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;" data-i18n="obPayments">Payment Methods</div>
                 <div class="chip-row" id="acc-payments" style="margin-top:8px;"></div>
                 <div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:14px;">
-                    <div><div class="l" style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;" data-i18n="obPayNumber">NMB Pay Number</div><div style="font-weight:700;color:var(--primary);margin-top:2px;" id="acc-paynumber">—</div></div>
                     <div><div class="l" style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;" data-i18n="obPayName">Account Name</div><div style="font-weight:700;color:var(--primary);margin-top:2px;" id="acc-payname">—</div></div>
                 </div>
             </div>
@@ -666,8 +665,8 @@
     <div class="foot-brand">HALLTAN BUSINESS POS</div>
     <div data-i18n="footTagline">Usimamizi wa Mauzo, Stoki na Madeni &mdash; Halltan, Tanzania</div>
     <div class="foot-contacts">
-        <a href="https://wa.me/255778650250" target="_blank">WhatsApp: 0778 650 250</a>
-        <a href="tel:+255755660645">Simu: 0755 660 645</a>
+        <a href="https://wa.me/255778650250" target="_blank"><span data-i18n="footWhatsApp">WhatsApp</span>: 0778 650 250</a>
+        <a href="tel:+255755660645"><span data-i18n="footPhone">Phone</span>: 0755 660 645</a>
         <a href="mailto:halltanveggies@gmail.com">halltanveggies@gmail.com</a>
     </div>
 </footer>
@@ -720,12 +719,12 @@
             <div class="form-group" style="grid-column:1/-1;">
                 <label data-i18n="obPayments">Payment Methods (tap to select)</label>
                 <div class="chip-row" id="ob-pay-chips" style="margin-top:2px;"></div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:6px;" data-i18n="obPayHint">Select each method you accept, then enter its number below. All appear on your invoices.</div>
             </div>
-            <div class="form-group">
-                <label data-i18n="obPayNumber">NMB Pay Number (NMB Lipa Namba)</label>
-                <input type="text" id="ob-paynumber" placeholder="Enter your NMB pay number">
+            <div class="form-group" style="grid-column:1/-1;">
+                <div id="ob-pay-numbers"></div>
             </div>
-            <div class="form-group">
+            <div class="form-group" style="grid-column:1/-1;">
                 <label data-i18n="obPayName">Account / Recipient Name</label>
                 <input type="text" id="ob-payname" placeholder="e.g. Your Account Name">
             </div>
@@ -862,6 +861,7 @@
             modalPayDesc: "Tuma malipo kwa njia yoyote hapa chini, kisha ingiza Kumbukumbu ya Muamala (Transaction ID):",
             lblLipaNo: "Lipa Namba", btnConfirmPay: "Thibitisha Malipo", btnClose: "Funga",
             footTagline: "Usimamizi wa Mauzo, Stoki na Madeni \u2014 Halltan, Tanzania",
+            footWhatsApp: "WhatsApp", footPhone: "Simu", obPayHint: "Chagua kila njia unayotumia, kisha weka namba yake hapa chini. Zote zitaonekana kwenye invoice zako.",
             selectProduct: "Tafuta Bidhaa", searchPh: "Tafuta jina, SKU au scan barcode…", cartTitle: "Mauzo ya Sasa",
             thItem: "Bidhaa", thPrice: "Bei", thQty: "Idadi", thDisc: "Punguzo%", thTotal: "Jumla",
             cartEmpty: "Cart iko tupu — tafuta na uweke bidhaa", btnSaleDisc: "＋ Punguzo la mauzo", btnHold: "⏸ Weka Pembeni",
@@ -948,6 +948,7 @@
             modalPayDesc: "Send payment via any method below, then enter your Transaction Reference ID:",
             lblLipaNo: "Payment Number (Lipa Namba)", btnConfirmPay: "Confirm Payment", btnClose: "Close",
             footTagline: "Sales, Inventory & Debt Management \u2014 Halltan, Tanzania",
+            footWhatsApp: "WhatsApp", footPhone: "Phone", obPayHint: "Select each method you accept, then enter its number below. All appear on your invoices.",
             selectProduct: "Find Product", searchPh: "Search name, SKU or scan barcode…", cartTitle: "Current Sale",
             thItem: "Item", thPrice: "Price", thQty: "Qty", thDisc: "Disc%", thTotal: "Total",
             cartEmpty: "Cart is empty — search and add a product", btnSaleDisc: "＋ Sale discount", btnHold: "⏸ Hold / Park",
@@ -1571,8 +1572,22 @@
     function uid(p) { return p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
     /* ---------- Business profile (set at account creation) ---------- */
-    const PAYMENT_OPTIONS = ["Cash", "M-Pesa", "Airtel Money", "Mixx by Yas", "HaloPesa", "TIPS", "NMB Mkononi", "Bank Transfer", "Visa / Mastercard"];
+    // Each method: needsNumber = whether it collects a number, and the label/placeholder for it.
+    const PAYMENT_METHODS = [
+        { id: "Cash",             needsNumber: false },
+        { id: "M-Pesa",           needsNumber: true,  label: "M-Pesa number",        ph: "e.g. 0755 660 645" },
+        { id: "Airtel Money",     needsNumber: true,  label: "Airtel Money number",  ph: "e.g. 0688 000 000" },
+        { id: "Mixx by Yas",      needsNumber: true,  label: "Mixx by Yas number",   ph: "e.g. 0778 650 250" },
+        { id: "HaloPesa",         needsNumber: true,  label: "HaloPesa number",      ph: "e.g. 0622 000 000" },
+        { id: "TIPS",             needsNumber: true,  label: "TIPS number",          ph: "e.g. TIPS ID" },
+        { id: "NMB Mkononi",      needsNumber: true,  label: "NMB Lipa Namba",       ph: "e.g. 21525070" },
+        { id: "CRDB SimBanking",  needsNumber: true,  label: "CRDB Lipa Namba",      ph: "e.g. Lipa number" },
+        { id: "Bank Transfer",    needsNumber: true,  label: "Bank account number",  ph: "e.g. 20310042216" },
+        { id: "Visa / Mastercard",needsNumber: false }
+    ];
+    const PAYMENT_OPTIONS = PAYMENT_METHODS.map(m => m.id); // back-compat
     let obSelectedPayments = [];
+    let obPayNumbers = {}; // { "M-Pesa": "0755...", "NMB Mkononi": "21525070", ... }
     let obLogoData = null; // base64 data URL of uploaded logo
 
     function getBusinessProfile() { return mem.meta.businessProfile || null; }
@@ -1607,6 +1622,16 @@
         applyBusinessProfile();
     }
 
+    // Build a "Method: number" list for invoices/account view from the profile.
+    function payLinesFrom(p) {
+        if (!p || !Array.isArray(p.payments)) return [];
+        const nums = p.payNumbers || {};
+        return p.payments.map(m => {
+            const n = nums[m];
+            return n ? `${m}: ${n}` : m; // Cash / cards have no number
+        });
+    }
+
     // Reflect the profile into the invoice config, banner and account tab
     function applyBusinessProfile() {
         const p = getBusinessProfile();
@@ -1614,8 +1639,10 @@
         if (p.name) INVOICE_CONFIG.businessName = p.name;
         INVOICE_CONFIG.line2 = p.phone ? ('TEL: ' + p.phone) : '';
         if (p.location) INVOICE_CONFIG.city = p.location;
-        if (Array.isArray(p.payments) && p.payments.length) INVOICE_CONFIG.payMethods = p.payments.join(' · ');
-        INVOICE_CONFIG.payLipa = p.payNumber || '';
+        const lines = payLinesFrom(p);
+        INVOICE_CONFIG.payMethods = lines.join(' · ');
+        INVOICE_CONFIG.payLines = lines;          // per-method list for the invoice
+        INVOICE_CONFIG.payLipa = '';              // no single "lipa" anymore
         INVOICE_CONFIG.payOwner = p.payName || '';
         INVOICE_CONFIG.logo = p.logo || null;
 
@@ -1626,11 +1653,11 @@
         set('acc-phone', p.phone);
         set('acc-type', p.type);
         set('acc-location', p.location);
-        set('acc-paynumber', p.payNumber);
         set('acc-payname', p.payName);
+        // Account tab: show each method with its number
         const chips = document.getElementById('acc-payments');
-        if (chips) chips.innerHTML = (p.payments && p.payments.length)
-            ? p.payments.map(m => `<span class="chip" style="cursor:default;">${esc(m)}</span>`).join('')
+        if (chips) chips.innerHTML = lines.length
+            ? lines.map(l => `<span class="chip" style="cursor:default;">${esc(l)}</span>`).join('')
             : `<span class="sr-meta">—</span>`;
         const accLogo = document.getElementById('acc-logo');
         if (accLogo) accLogo.innerHTML = p.logo ? `<img src="${p.logo}" style="width:100%;height:100%;object-fit:contain;">` : '🏢';
@@ -1645,39 +1672,61 @@
         document.getElementById('ob-phone').value = p.phone || '';
         document.getElementById('ob-type').value = p.type || '';
         document.getElementById('ob-location').value = p.location || '';
-        document.getElementById('ob-paynumber').value = p.payNumber || '';
         document.getElementById('ob-payname').value = p.payName || '';
         obSelectedPayments = Array.isArray(p.payments) ? [...p.payments] : [];
+        obPayNumbers = Object.assign({}, p.payNumbers || {});
         obLogoData = p.logo || null;
         const inp = document.getElementById('ob-logo-input'); if (inp) inp.value = '';
         renderLogoPreview();
         renderPayChips();
+        renderPayNumberBoxes();
         document.getElementById('onboard-err').style.display = 'none';
         openModal('onboard-modal');
         setTimeout(() => document.getElementById('ob-name').focus(), 60);
     }
     function renderPayChips() {
         const wrap = document.getElementById('ob-pay-chips');
-        wrap.innerHTML = PAYMENT_OPTIONS.map(m => {
-            const on = obSelectedPayments.includes(m);
-            return `<span class="chip" style="${on ? 'background:var(--accent);color:#fff;border-color:var(--accent);' : ''}" onclick="togglePay('${m.replace(/'/g,"\\'")}')">${on ? '✓ ' : ''}${m}</span>`;
+        wrap.innerHTML = PAYMENT_METHODS.map(m => {
+            const on = obSelectedPayments.includes(m.id);
+            return `<span class="chip" style="${on ? 'background:var(--accent);color:#fff;border-color:var(--accent);' : ''}" onclick="togglePay('${m.id.replace(/'/g,"\\'")}')">${on ? '✓ ' : ''}${m.id}</span>`;
         }).join('');
     }
-    function togglePay(m) {
-        const i = obSelectedPayments.indexOf(m);
-        if (i >= 0) obSelectedPayments.splice(i, 1); else obSelectedPayments.push(m);
+    function togglePay(id) {
+        const i = obSelectedPayments.indexOf(id);
+        if (i >= 0) { obSelectedPayments.splice(i, 1); delete obPayNumbers[id]; }
+        else obSelectedPayments.push(id);
         renderPayChips();
+        renderPayNumberBoxes();
     }
+    // Render a labeled number box under the chips for each selected method that needs one.
+    function renderPayNumberBoxes() {
+        const wrap = document.getElementById('ob-pay-numbers');
+        if (!wrap) return;
+        const boxes = obSelectedPayments
+            .map(id => PAYMENT_METHODS.find(m => m.id === id))
+            .filter(m => m && m.needsNumber);
+        if (!boxes.length) { wrap.innerHTML = ''; return; }
+        wrap.innerHTML = `<div class="field-row">` + boxes.map(m => `
+            <div class="form-group">
+                <label>${esc(m.label)}</label>
+                <input type="text" value="${esc(obPayNumbers[m.id] || '')}" placeholder="${esc(m.ph || '')}"
+                    oninput="setPayNumber('${m.id.replace(/'/g,"\\'")}', this.value)">
+            </div>`).join('') + `</div>`;
+    }
+    function setPayNumber(id, val) { obPayNumbers[id] = val.trim(); }
+
     async function submitOnboarding() {
         const name = document.getElementById('ob-name').value.trim();
         const phone = document.getElementById('ob-phone').value.trim();
         const type = document.getElementById('ob-type').value;
         const location = document.getElementById('ob-location').value.trim();
-        const payNumber = document.getElementById('ob-paynumber').value.trim();
         const payName = document.getElementById('ob-payname').value.trim();
         const err = document.getElementById('onboard-err');
         if (!name) { err.innerText = t('errBizName'); err.style.display = 'block'; return; }
-        const profile = { name, phone, type, location, payments: [...obSelectedPayments], payNumber, payName, logo: obLogoData || null, updatedAt: Date.now() };
+        // keep only numbers for currently-selected methods
+        const cleanNumbers = {};
+        obSelectedPayments.forEach(id => { if (obPayNumbers[id]) cleanNumbers[id] = obPayNumbers[id]; });
+        const profile = { name, phone, type, location, payments: [...obSelectedPayments], payNumbers: cleanNumbers, payName, logo: obLogoData || null, updatedAt: Date.now() };
         await saveBusinessProfile(profile);
 
         // If this profile is tied to a live tenant (Firebase), persist there too.
@@ -2475,11 +2524,10 @@
     <div class="row grand"><span>TOTAL</span><span>${C.currency} ${money(r.grandTotal)}</span></div>
   </div>
 
-  ${(C.payLipa || C.payOwner || C.payMethods) ? `<div class="pay-box">
-    <div class="lbl">💳 Payment / Malipo${C.payLipa ? ' — NMB Lipa Namba' : ''}</div>
-    ${C.payLipa ? `<div class="lipa">${C.payLipa}</div>` : ''}
-    ${C.payOwner ? `<div class="muted" style="font-size:12px;margin-top:3px;">${C.payOwner}</div>` : ''}
-    ${C.payMethods ? `<div class="muted" style="font-size:11px;margin-top:4px;">${C.payMethods}</div>` : ''}
+  ${((C.payLines && C.payLines.length) || C.payOwner) ? `<div class="pay-box">
+    <div class="lbl">💳 Payment / Malipo</div>
+    ${(C.payLines && C.payLines.length) ? C.payLines.map(l => `<div style="font-size:13px;font-weight:700;color:#1e293b;">${l}</div>`).join('') : ''}
+    ${C.payOwner ? `<div class="muted" style="font-size:12px;margin-top:5px;">${C.payOwner}</div>` : ''}
   </div>` : ''}
 
   ${r.notes ? `<div class="notes"><b>Notes:</b> ${r.notes}</div>` : ''}
