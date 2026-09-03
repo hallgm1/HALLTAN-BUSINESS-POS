@@ -334,7 +334,7 @@
             <br>
             <strong data-i18n="lblPlan">Kifurushi Chako:</strong> <span id="current-tier-display">Medium Business</span> |
             <strong data-i18n="lblStatus">Hali:</strong> <span id="current-status-display" style="color: var(--success); font-weight: bold;">Active</span> |
-            <strong data-i18n="lblExpires">Itaisha:</strong> <span id="current-expiry-display">30 Nov 2026</span>
+            <strong data-i18n="lblExpires">Itaisha:</strong> <span id="current-expiry-display">—</span>
         </div>
         <button class="btn btn-warning" style="font-size: 11px; padding: 6px 12px;" onclick="showPaymentModal()" data-i18n="btnUpgrade">Ongeza Salio / Upgrade</button>
     </div>
@@ -1345,6 +1345,8 @@
         if(tenantData) {
             document.getElementById('current-tier-display').innerText = tenantData.tier || "Small";
             document.getElementById('current-status-display').innerText = tenantData.status || "Active";
+            const expEl = document.getElementById('current-expiry-display');
+            if (expEl) expEl.innerText = tenantData.expiresAt ? fmtDate(tenantData.expiresAt) : '—';
         }
         applyBusinessProfile();
         renderIdentity();
