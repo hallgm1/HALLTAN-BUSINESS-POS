@@ -1231,21 +1231,19 @@
             const pend = d.pendingPayment;
             if (!pend) { alert(t('noPending')); return; }
             if (!confirm(t('approveConfirm').replace('{tier}', pend.tier).replace('{months}', pend.months).replace('{amount}', (pend.amount||0).toLocaleString()))) return;
-            // extend from the later of now or current expiry
             const now = Date.now();
             const base = (d.expiresAt && d.expiresAt > now) ? d.expiresAt : now;
             const newExpiry = base + pend.months * 30 * 24 * 60 * 60 * 1000; // ~months
+            // Only the tenant document is written (allowed for admins by the rules).
+            // We keep a light approval record on the tenant doc itself instead of
+            // writing to the owner-only payments subcollection.
             await ref.set({
                 tier: pend.tier,
                 status: 'Active',
                 expiresAt: newExpiry,
+                lastPayment: { tier: pend.tier, months: pend.months, amount: pend.amount, txRef: pend.txRef, approvedAt: now },
                 pendingPayment: firebase.firestore.FieldValue.delete()
             }, { merge: true });
-            // mark the payment record approved
-            const pays = await ref.collection('payments').where('txRef', '==', pend.txRef).get();
-            const batch = db.batch();
-            pays.forEach(pd => batch.update(pd.ref, { status: 'approved', approvedAt: now }));
-            await batch.commit();
             loadOwnerTenants();
             alert(t('approvedOk'));
         } catch (e) {
@@ -1260,17 +1258,11 @@
             const ref = db.collection('tenants').doc(tenantUid);
             const doc = await ref.get();
             const d = doc.data() || {};
-            const pend = d.pendingPayment;
+            // Only the tenant document is written (admin-allowed).
             await ref.set({
                 status: (d.expiresAt && d.expiresAt > Date.now()) ? 'Active' : 'Payment rejected',
                 pendingPayment: firebase.firestore.FieldValue.delete()
             }, { merge: true });
-            if (pend) {
-                const pays = await ref.collection('payments').where('txRef', '==', pend.txRef).get();
-                const batch = db.batch();
-                pays.forEach(pd => batch.update(pd.ref, { status: 'rejected', rejectedAt: Date.now() }));
-                await batch.commit();
-            }
             loadOwnerTenants();
             alert(t('rejectedOk'));
         } catch (e) { console.warn('reject', e); }
