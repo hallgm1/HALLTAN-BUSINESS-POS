@@ -482,12 +482,21 @@
         <div class="card">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
                 <h3 data-i18n="reportsSec">Sales Reports</h3>
-                <select id="report-range" onchange="renderReports()" style="max-width:180px;">
-                    <option value="today" data-i18n="rangeToday">Today</option>
-                    <option value="7" data-i18n="range7">Last 7 days</option>
-                    <option value="30" data-i18n="range30">Last 30 days</option>
-                    <option value="all" data-i18n="rangeAll">All time</option>
-                </select>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                    <select id="report-range" onchange="onRangeChange()" style="max-width:180px;">
+                        <option value="today" data-i18n="rangeToday">Today</option>
+                        <option value="7" data-i18n="range7">Last 7 days</option>
+                        <option value="30" data-i18n="range30">Last 30 days</option>
+                        <option value="all" data-i18n="rangeAll">All time</option>
+                        <option value="custom" data-i18n="rangeCustom">Custom range…</option>
+                    </select>
+                    <button class="btn btn-ghost" onclick="exportReport()" data-i18n="btnExportReport">⭳ Export</button>
+                </div>
+            </div>
+            <div id="custom-range-row" style="display:none;gap:10px;flex-wrap:wrap;align-items:end;margin-top:12px;">
+                <div class="form-group" style="margin:0;"><label data-i18n="rangeFrom">From</label><input type="date" id="rep-from" onchange="renderReports()"></div>
+                <div class="form-group" style="margin:0;"><label data-i18n="rangeTo">To</label><input type="date" id="rep-to" onchange="renderReports()"></div>
+                <div style="font-size:12px;color:var(--text-muted);" id="rep-range-label"></div>
             </div>
             <br>
             <div class="stat-grid">
@@ -908,6 +917,7 @@
             outstanding: "Deni lote", openInvoices: "Invoice wazi", thInv: "Invoice", thCust: "Mteja", thDate: "Tarehe", thBalance: "Baki",
             thStatus: "Hali", debtEmpty: "Hakuna madeni", reportsSec: "Ripoti za Mauzo",
             rangeToday: "Leo", range7: "Siku 7", range30: "Siku 30", rangeAll: "Muda wote",
+            rangeCustom: "Chagua tarehe…", rangeFrom: "Kuanzia", rangeTo: "Hadi", btnExportReport: "⭳ Pakua ripoti",
             revenue: "Mapato", salesCount: "Mauzo", avgSale: "Wastani", itemsSold: "Bidhaa zilizouzwa",
             topProducts: "Bidhaa Zinazoongoza", thQtySold: "Idadi", thRevenue: "Mapato", repEmpty: "Hakuna mauzo katika kipindi hiki",
             customersSec: "Wateja", btnAddCustomer: "＋ Ongeza Mteja", filterCustPh: "Chuja wateja…", customersWord: "wateja",
@@ -1007,6 +1017,7 @@
             outstanding: "Outstanding", openInvoices: "Open invoices", thInv: "Invoice", thCust: "Customer", thDate: "Date", thBalance: "Balance",
             thStatus: "Status", debtEmpty: "No outstanding debts", reportsSec: "Sales Reports",
             rangeToday: "Today", range7: "Last 7 days", range30: "Last 30 days", rangeAll: "All time",
+            rangeCustom: "Custom range…", rangeFrom: "From", rangeTo: "To", btnExportReport: "⭳ Export report",
             revenue: "Revenue", salesCount: "Sales", avgSale: "Avg sale", itemsSold: "Items sold",
             topProducts: "Top Products", thQtySold: "Qty sold", thRevenue: "Revenue", repEmpty: "No sales in this period yet",
             customersSec: "Customers", btnAddCustomer: "＋ Add Customer", filterCustPh: "Filter customers…", customersWord: "customers",
@@ -2576,20 +2587,52 @@
     }
 
     /* ---------- Reports ---------- */
-    function renderReports() {
+    function onRangeChange() {
+        const custom = document.getElementById('report-range').value === 'custom';
+        const row = document.getElementById('custom-range-row');
+        if (row) row.style.display = custom ? 'flex' : 'none';
+        if (custom) {
+            // default the pickers to the last 30 days if empty
+            const from = document.getElementById('rep-from'), to = document.getElementById('rep-to');
+            if (from && !from.value) { const d = new Date(Date.now() - 30 * 864e5); from.value = isoDate(d); }
+            if (to && !to.value) { to.value = isoDate(new Date()); }
+        }
+        renderReports();
+    }
+    function isoDate(d) { const p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`; }
+
+    let _lastReportSales = []; // remembered for export
+
+    // Returns [from, to] timestamps for the selected range.
+    function reportWindow() {
         const range = document.getElementById('report-range').value;
         const now = Date.now();
-        let from = 0;
+        let from = 0, to = now;
         if (range === 'today') { const d = new Date(); d.setHours(0,0,0,0); from = d.getTime(); }
         else if (range === '7') from = now - 7 * 864e5;
         else if (range === '30') from = now - 30 * 864e5;
-        const sales = mem.sales.filter(s => s.ts >= from);
+        else if (range === 'custom') {
+            const fEl = document.getElementById('rep-from'), tEl = document.getElementById('rep-to');
+            if (fEl && fEl.value) { const d = new Date(fEl.value); d.setHours(0,0,0,0); from = d.getTime(); }
+            if (tEl && tEl.value) { const d = new Date(tEl.value); d.setHours(23,59,59,999); to = d.getTime(); } // inclusive of the "to" day
+        }
+        return [from, to];
+    }
+
+    function renderReports() {
+        const [from, to] = reportWindow();
+        const sales = mem.sales.filter(s => s.ts >= from && s.ts <= to);
+        _lastReportSales = sales;
         const revenue = sales.reduce((s, x) => s + x.grand, 0);
         const items = sales.reduce((s, x) => s + x.items.reduce((a, i) => a + i.qty, 0), 0);
         document.getElementById('rep-revenue').innerText = revenue.toLocaleString();
         document.getElementById('rep-sales').innerText = sales.length;
         document.getElementById('rep-avg').innerText = (sales.length ? Math.round(revenue / sales.length) : 0).toLocaleString();
         document.getElementById('rep-items').innerText = items;
+        // custom-range label
+        const lbl = document.getElementById('rep-range-label');
+        if (lbl) lbl.innerText = (document.getElementById('report-range').value === 'custom' && sales.length >= 0)
+            ? `${fmtDate(from)} – ${fmtDate(to)}` : '';
         // top products
         const map = {};
         sales.forEach(s => s.items.forEach(i => {
@@ -2600,6 +2643,39 @@
         document.getElementById('rep-top-body').innerHTML = top.map(x =>
             `<tr><td>${esc(x.name)}</td><td style="text-align:center;">${x.qty}</td><td class="tr">${x.rev.toLocaleString()}</td></tr>`).join('');
         document.getElementById('rep-empty').style.display = sales.length ? 'none' : 'block';
+    }
+
+    // Export the currently-shown report period to Excel (falls back to CSV).
+    function exportReport() {
+        const sales = _lastReportSales || [];
+        if (!sales.length) { alert(t('repEmpty')); return; }
+        const [from, to] = reportWindow();
+        const rows = sales.slice().sort((a,b)=>a.ts-b.ts).map(s => ({
+            Invoice: s.invNo,
+            Date: fmtDate(s.ts),
+            Time: new Date(s.ts).toLocaleTimeString(),
+            Customer: (s.customer && s.customer.name) || '',
+            Items: s.items.map(i => `${i.name} x${i.qty}`).join('; '),
+            Subtotal: s.subtotal, VAT: s.tax, Total: s.grand,
+            Tender: s.tender, Status: s.status
+        }));
+        const period = `${fmtDate(from)}_to_${fmtDate(to)}`.replace(/\//g,'-');
+        try {
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'Sales');
+            // summary sheet
+            const rev = sales.reduce((a,x)=>a+x.grand,0);
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([
+                { Metric: 'Period', Value: `${fmtDate(from)} - ${fmtDate(to)}` },
+                { Metric: 'Sales count', Value: sales.length },
+                { Metric: 'Revenue', Value: rev },
+                { Metric: 'Avg sale', Value: sales.length ? Math.round(rev/sales.length) : 0 }
+            ]), 'Summary');
+            XLSX.writeFile(wb, `halltan-report-${period}.xlsx`);
+        } catch (e) {
+            const csv = toCSV(rows);
+            downloadBlob(csv, `halltan-report-${period}.csv`, 'text/csv');
+        }
     }
 
     /* ---------- small utils ---------- */
