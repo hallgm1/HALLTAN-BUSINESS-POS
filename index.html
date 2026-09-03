@@ -207,7 +207,7 @@
         <span>HALLTAN BUSINESS POS<small>Business Point of Sale</small></span>
     </div>
     <div class="user-nav-info" id="nav-user-area">
-        <span class="sync-pill" id="sync-pill" title="Local offline storage active"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">Offline-ready</span></span>
+        <span class="sync-pill" id="sync-pill"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">Online</span></span>
         <select class="lang-select" id="lang-selector" onchange="changeLanguage(this.value)">
             <option value="sw">&#127481;&#127487; Swahili</option>
             <option value="en" selected>&#127468;&#127463; English</option>
@@ -337,6 +337,10 @@
             <strong data-i18n="lblExpires">Itaisha:</strong> <span id="current-expiry-display">—</span>
         </div>
         <button class="btn btn-warning" style="font-size: 11px; padding: 6px 12px;" onclick="showPaymentModal()" data-i18n="btnUpgrade">Ongeza Salio / Upgrade</button>
+    </div>
+    <div id="access-banner" style="display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#fdf3e0;border:1px solid var(--gold);border-radius:10px;padding:11px 18px;margin-bottom:18px;font-size:13px;font-weight:600;">
+        <span></span>
+        <button class="btn" style="font-size:12px;padding:6px 14px;" onclick="showPaymentModal()" data-i18n="btnRenewNow">Renew now</button>
     </div>
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('sales-tab', event)" data-i18n="tabSales">&#128722; Mauzo (POS / Cart)</button>
@@ -619,6 +623,18 @@
         </div>
         <p style="font-size:12px;color:var(--text-muted);margin:8px 0 14px;" data-i18n="usageHint">Approximate — counts only Firestore operations this device made today, against the free-tier daily limits. For the true platform-wide figure, open the Firebase Console.</p>
         <div id="usage-bars"></div>
+    </div>
+</div>
+
+<!-- LOCK SCREEN (shown when trial/subscription has lapsed past grace) -->
+<div id="lock-viewport" style="display:none;padding:60px 22px;max-width:560px;margin:0 auto;width:100%;text-align:center;">
+    <div style="font-size:56px;margin-bottom:16px;">🔒</div>
+    <h2 style="color:var(--primary);margin:0 0 10px;" data-i18n="lockTitle">Subscription Expired</h2>
+    <p id="lock-message" style="color:var(--text-muted);font-size:15px;margin-bottom:8px;">Your access has expired.</p>
+    <p style="color:var(--text-muted);font-size:13px;margin-bottom:28px;" data-i18n="lockSub">Renew your subscription to continue using the POS. Your data is safe and will be available again once you renew.</p>
+    <button class="btn btn-success" style="padding:13px 28px;font-size:15px;" onclick="showPaymentModal()" data-i18n="btnRenewNow">Renew now</button>
+    <div style="margin-top:18px;">
+        <span style="font-size:13px;color:var(--text-muted);cursor:pointer;text-decoration:underline;" onclick="auth.signOut()" data-i18n="logout">Logout</span>
     </div>
 </div>
 
@@ -907,6 +923,10 @@
             edit: "Hariri", del: "Futa", resume: "Endelea", recordPay: "Rekodi malipo",
             inStock: "stoki", itemsWord: "bidhaa", unpaid: "Haijalipwa", partial: "Sehemu", paid: "Imelipwa",
             syncOnline: "Mtandaoni", syncOffline: "Nje ya mtandao",
+            courtesy4: "+ Siku 4 za hisani", courtesyConfirm: "Ongeza siku 4 za hisani kwenye muda uliopo wa akaunti hii?",
+            courtesyDone: "Zimeongezwa siku 4 za hisani. Muda mpya: {date}.",
+            offlineWarnTitle: "Intaneti inahitajika kwa usawazishaji na hifadhi. Matumizi ya muda mrefu bila intaneti yanaweza kuzuia data yako kusawazishwa.",
+            offlineWarnToast: "⚠️ Hakuna intaneti. Intaneti inahitajika kwa usawazishaji na hifadhi salama.",
             savedOk: "Imehifadhiwa", saleDone: "Mauzo yamekamilika:", payRecorded: "Malipo yamerekodiwa", saleParked: "Mauzo yamewekwa pembeni",
             cartEmptyMsg: "Cart iko tupu!", confirmDelProduct: "Futa bidhaa hii?", confirmDelCust: "Futa mteja huyu?",
             confirmClear: "Futa cart yote?", confirmReplaceCart: "Badilisha cart ya sasa?", promptSaleDisc: "Asilimia ya punguzo la mauzo yote (%)",
@@ -928,6 +948,11 @@
             usageTitle: "Matumizi ya Firebase (leo)", usageRealBtn: "↗ Matumizi halisi Firebase",
             usageHint: "Makadirio — inahesabu tu operesheni za Firestore zilizofanywa na kifaa hiki leo, dhidi ya kikomo cha bure cha kila siku. Kwa takwimu halisi ya jukwaa zima, fungua Firebase Console.",
             usageReads: "Kusoma (Reads)", usageWrites: "Kuandika (Writes)", usageDeletes: "Kufuta (Deletes)",
+            lockTitle: "Muda Umeisha", lockSub: "Fanya malipo kuendelea kutumia POS. Data yako iko salama na itapatikana tena baada ya kulipia.",
+            lockMsg: "{kind} yako imeisha muda.", lockTrialWord: "Jaribio la bure", lockSubWord: "Kifurushi",
+            accessExpiredGrace: "{kind} yako imeisha. Fanya malipo sasa kuepuka kufungiwa.",
+            accessDaysLeft: "{kind}: zimebaki siku {n}. Fanya malipo kuendelea.",
+            btnRenewNow: "Lipia Sasa",
             noPending: "Hakuna malipo yanayosubiri.", approveConfirm: "Thibitisha malipo? {tier} · miezi {months} · TSh {amount}. Akaunti itawashwa na muda kuongezwa.",
             approvedOk: "Malipo yamethibitishwa na akaunti imewashwa.", approveErr: "Imeshindwa kuthibitisha:", rejectConfirm: "Kataa malipo haya?", rejectedOk: "Malipo yamekataliwa.",
             errBizName: "Jina la biashara linahitajika", errLogoSize: "Nembo ni kubwa mno (kikomo 512KB)"
@@ -997,6 +1022,10 @@
             edit: "Edit", del: "Delete", resume: "Resume", recordPay: "Record payment",
             inStock: "in stock", itemsWord: "items", unpaid: "Unpaid", partial: "Partial", paid: "Paid",
             syncOnline: "Online", syncOffline: "Offline",
+            courtesy4: "+ 4 courtesy days", courtesyConfirm: "Add 4 courtesy days onto this account's existing expiry?",
+            courtesyDone: "4 courtesy days added. New expiry: {date}.",
+            offlineWarnTitle: "An internet connection is required for syncing and backup. Extended offline use may prevent your data from syncing.",
+            offlineWarnToast: "⚠️ No internet. A connection is required for syncing and safe backup.",
             savedOk: "Saved", saleDone: "Sale complete:", payRecorded: "Payment recorded", saleParked: "Sale parked",
             cartEmptyMsg: "Cart is empty!", confirmDelProduct: "Delete this product?", confirmDelCust: "Delete this customer?",
             confirmClear: "Clear the whole cart?", confirmReplaceCart: "Replace current cart?", promptSaleDisc: "Whole-sale discount percentage (%)",
@@ -1018,6 +1047,11 @@
             usageTitle: "Firebase Usage (today)", usageRealBtn: "↗ Real usage in Firebase",
             usageHint: "Approximate — counts only Firestore operations this device made today, against the free-tier daily limits. For the true platform-wide figure, open the Firebase Console.",
             usageReads: "Reads", usageWrites: "Writes", usageDeletes: "Deletes",
+            lockTitle: "Subscription Expired", lockSub: "Renew to continue using the POS. Your data is safe and will be available again once you renew.",
+            lockMsg: "Your {kind} has expired.", lockTrialWord: "free trial", lockSubWord: "subscription",
+            accessExpiredGrace: "Your {kind} has expired. Renew now to avoid being locked out.",
+            accessDaysLeft: "{kind}: {n} day(s) left. Renew to keep access.",
+            btnRenewNow: "Renew now",
             noPending: "No pending payment.", approveConfirm: "Approve payment? {tier} · {months} months · TSh {amount}. Account will be activated and extended.",
             approvedOk: "Payment approved and account activated.", approveErr: "Approval failed:", rejectConfirm: "Reject this payment?", rejectedOk: "Payment rejected.",
             errBizName: "Business name is required", errLogoSize: "Logo is too large (max 512KB)"
@@ -1157,12 +1191,17 @@
                     return;
                 }
                 applyBusinessProfile();
+                // Enforcement gate: check trial/subscription against SERVER time.
+                const gate = await evaluateAccess(user.uid, data);
+                if (gate.locked) { showLockScreen(gate); return; }
                 showAppView(data);
+                applyAccessBanner(gate); // countdown / warning
             } else {
                 const seedTenant = {
                     ownerEmail: user.email,
                     tier: "Small",
                     status: "Active (Free Trial)",
+                    trialStartedAt: firebase.firestore.FieldValue.serverTimestamp(),
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
                 try { await db.collection('tenants').doc(user.uid).set(seedTenant, { merge: true }); } catch (e) {}
@@ -1173,6 +1212,97 @@
             console.warn('tenant check failed', e);
             showLandingView();
         });
+    }
+
+    /* ---------------- Trial / subscription enforcement ----------------
+       Honest design notes:
+       - Uses SERVER time (Firestore) so a tenant can't bypass by changing
+         their device clock.
+       - FAILS OPEN: if we can't reach the server (offline), we DO NOT lock,
+         so a shop in low signal keeps working. Enforcement is best-effort.
+       - 3-day grace after expiry before hard lock.
+       - Platform admin and mid-onboarding accounts are never evaluated here. */
+    const TRIAL_DAYS = 14;
+    const GRACE_DAYS = 3;
+    const DAY_MS = 24 * 60 * 60 * 1000;
+
+    // Get Google's server time by writing+reading a serverTimestamp. Returns ms,
+    // or null if it can't be obtained (offline) → caller fails open.
+    async function getServerNow(uid) {
+        if (!firebaseReady || !db || !navigator.onLine) return null;
+        try {
+            const ref = db.collection('tenants').doc(uid);
+            await ref.set({ lastSeen: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+            const fresh = await ref.get();
+            const ts = fresh.get('lastSeen');
+            return ts && ts.toMillis ? ts.toMillis() : null;
+        } catch (e) { console.warn('serverNow', e); return null; }
+    }
+
+    // Work out the effective expiry (paid expiry, else trial end) and status.
+    function effectiveExpiry(data) {
+        if (data.expiresAt) return { at: data.expiresAt, kind: 'subscription' };
+        // trial: from trialStartedAt (server ms) + TRIAL_DAYS
+        let startMs = null;
+        if (data.trialStartedAt && data.trialStartedAt.toMillis) startMs = data.trialStartedAt.toMillis();
+        else if (typeof data.trialStartedAt === 'number') startMs = data.trialStartedAt;
+        if (startMs) return { at: startMs + TRIAL_DAYS * DAY_MS, kind: 'trial' };
+        return { at: null, kind: 'unknown' };
+    }
+
+    // Decide access. Returns { locked, daysLeft, kind, expiryMs, graceEndMs, unknownTime }
+    async function evaluateAccess(uid, data) {
+        const eff = effectiveExpiry(data);
+        const nowServer = await getServerNow(uid);
+        const now = nowServer != null ? nowServer : Date.now(); // fall back to device only for display
+        const unknownTime = nowServer == null;
+
+        // No expiry info at all → don't lock (e.g. fresh/edge state).
+        if (eff.at == null) return { locked: false, daysLeft: null, kind: eff.kind, expiryMs: null, unknownTime };
+
+        const graceEnd = eff.at + GRACE_DAYS * DAY_MS;
+        const msLeft = eff.at - now;
+        const daysLeft = Math.ceil(msLeft / DAY_MS);
+
+        // FAIL OPEN: if we couldn't get server time, never hard-lock.
+        if (unknownTime) return { locked: false, daysLeft, kind: eff.kind, expiryMs: eff.at, graceEndMs: graceEnd, unknownTime: true };
+
+        const locked = now > graceEnd;
+        return { locked, daysLeft, kind: eff.kind, expiryMs: eff.at, graceEndMs: graceEnd, unknownTime: false, inGrace: now > eff.at && now <= graceEnd };
+    }
+
+    // Show a full-screen lock (POS blocked) with a renew action.
+    function showLockScreen(gate) {
+        document.getElementById('landing-viewport').style.display = 'none';
+        document.getElementById('app-viewport').style.display = 'none';
+        const ov = document.getElementById('owner-viewport'); if (ov) ov.style.display = 'none';
+        const lock = document.getElementById('lock-viewport');
+        if (!lock) return;
+        lock.style.display = 'block';
+        const kindWord = gate.kind === 'trial' ? t('lockTrialWord') : t('lockSubWord');
+        const msg = document.getElementById('lock-message');
+        if (msg) msg.innerText = t('lockMsg').replace('{kind}', kindWord);
+    }
+
+    // Countdown / warning banner in the normal app view.
+    function applyAccessBanner(gate) {
+        const el = document.getElementById('access-banner');
+        if (!el) return;
+        if (!gate || gate.daysLeft == null) { el.style.display = 'none'; return; }
+        const d = gate.daysLeft;
+        const kindWord = gate.kind === 'trial' ? t('lockTrialWord') : t('lockSubWord');
+        if (gate.inGrace) {
+            el.style.display = 'flex';
+            el.style.background = '#fdeaea'; el.style.borderColor = 'var(--danger)';
+            el.querySelector('span').innerText = t('accessExpiredGrace').replace('{kind}', kindWord);
+        } else if (d <= 5 && d >= 0) {
+            el.style.display = 'flex';
+            el.style.background = d <= 2 ? '#fdeaea' : '#fdf3e0';
+            el.style.borderColor = d <= 2 ? 'var(--danger)' : 'var(--gold)';
+            el.querySelector('span').innerText = t('accessDaysLeft').replace('{n}', d).replace('{kind}', kindWord);
+        } else {
+            el.style.display = 'none';
+        }
     }
 
     /* ---------------- Platform Owner view ----------------
@@ -1242,6 +1372,15 @@
                           <button class="mini-btn danger" onclick="rejectPayment('${doc.id}')" data-i18n="reject">Reject</button>
                         </div></div>`;
                 }
+                // Courtesy extension: offer when the account's effective expiry is in the past
+                // (expired trial or lapsed subscription). The grant extends 4 days onto the
+                // account's existing expiry, as a goodwill gesture from the owner.
+                const eff = effectiveExpiry(d);
+                const isExpired = eff.at != null && eff.at < Date.now();
+                if (isExpired) {
+                    const courtesyBtn = `<button class="mini-btn" style="color:var(--gold);border-color:var(--gold);margin-top:4px;" onclick="grantCourtesy('${doc.id}')" data-i18n="courtesy4">+4 days courtesy</button>`;
+                    actionCell = (actionCell === '—') ? courtesyBtn : (actionCell.replace('</div></div>', '</div><div style="margin-top:4px;">' + courtesyBtn + '</div></div>'));
+                }
                 const exp = d.expiresAt ? fmtDate(d.expiresAt) : '—';
                 rows.push(`<tr>
                     <td><b>${esc(p.name || '—')}</b></td>
@@ -1280,6 +1419,31 @@
     function fmtDate(ms) {
         const d = new Date(ms), p = n => String(n).padStart(2, '0');
         return `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()}`;
+    }
+
+    // Owner grants a 4-day courtesy extension onto the account's existing expiry.
+    async function grantCourtesy(tenantUid) {
+        if (!firebaseReady || !db || !isPlatformAdmin) return;
+        try {
+            const ref = db.collection('tenants').doc(tenantUid);
+            const doc = await ref.get();
+            const d = doc.data() || {};
+            const eff = effectiveExpiry(d);
+            if (!confirm(t('courtesyConfirm'))) return;
+            // Extend 4 days onto the existing expiry (paid expiry, or the trial-end).
+            const baseExpiry = eff.at != null ? eff.at : Date.now();
+            const newExpiry = baseExpiry + 4 * DAY_MS;
+            await ref.set({
+                expiresAt: newExpiry,
+                status: 'Active (Courtesy)',
+                pendingPayment: firebase.firestore.FieldValue.delete()
+            }, { merge: true });
+            loadOwnerTenants();
+            alert(t('courtesyDone').replace('{date}', fmtDate(newExpiry)));
+        } catch (e) {
+            console.warn('courtesy', e);
+            alert(t('approveErr') + ' ' + (e && e.message ? e.message : e));
+        }
     }
 
     // Owner approves a pending payment → activate + extend expiry by paid duration.
@@ -2450,12 +2614,20 @@
     }
 
     // Online/offline indicator
+    let _offlineWarned = false;
     function updateSyncPill() {
         const online = navigator.onLine;
-        const dot = document.getElementById('sync-dot'), txt = document.getElementById('sync-text');
+        const dot = document.getElementById('sync-dot'), txt = document.getElementById('sync-text'), pill = document.getElementById('sync-pill');
         if (!dot) return;
         dot.classList.toggle('offline', !online);
         txt.innerText = online ? t('syncOnline') : t('syncOffline');
+        if (pill) pill.title = online ? '' : t('offlineWarnTitle');
+        // Warn once per offline episode: internet is required for sync & backup.
+        if (!online && !_offlineWarned) {
+            _offlineWarned = true;
+            showToast(t('offlineWarnToast'));
+        }
+        if (online) _offlineWarned = false;
     }
     window.addEventListener('online', updateSyncPill);
     window.addEventListener('offline', updateSyncPill);
