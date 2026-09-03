@@ -1199,7 +1199,7 @@
                           <button class="mini-btn danger" onclick="rejectPayment('${doc.id}')" data-i18n="reject">Reject</button>
                         </div></div>`;
                 }
-                const exp = d.expiresAt ? new Date(d.expiresAt).toLocaleDateString() : '—';
+                const exp = d.expiresAt ? fmtDate(d.expiresAt) : '—';
                 rows.push(`<tr>
                     <td><b>${esc(p.name || '—')}</b></td>
                     <td>${esc(p.type || '—')}</td>
@@ -1221,6 +1221,24 @@
         }
     }
 
+    // Subscription expiry = last full day of access.
+    // e.g. activate 03/09 + 1 month → 02/10 (day before the same date next month).
+    function addMonths(ms, months) {
+        const d = new Date(ms);
+        const result = new Date(d.getTime());
+        result.setMonth(d.getMonth() + months);
+        // guard month-overflow (e.g. Jan 31 + 1mo → Mar 3): clamp to that month's last day
+        if (result.getDate() !== d.getDate()) result.setDate(0);
+        // step back one day so the expiry is the last full day of the paid period
+        result.setDate(result.getDate() - 1);
+        return result.getTime();
+    }
+    // Format a timestamp as DD/MM/YYYY (Tanzanian convention).
+    function fmtDate(ms) {
+        const d = new Date(ms), p = n => String(n).padStart(2, '0');
+        return `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()}`;
+    }
+
     // Owner approves a pending payment → activate + extend expiry by paid duration.
     async function approvePayment(tenantUid) {
         if (!firebaseReady || !db || !isPlatformAdmin) return;
@@ -1232,8 +1250,17 @@
             if (!pend) { alert(t('noPending')); return; }
             if (!confirm(t('approveConfirm').replace('{tier}', pend.tier).replace('{months}', pend.months).replace('{amount}', (pend.amount||0).toLocaleString()))) return;
             const now = Date.now();
-            const base = (d.expiresAt && d.expiresAt > now) ? d.expiresAt : now;
-            const newExpiry = base + pend.months * 30 * 24 * 60 * 60 * 1000; // ~months
+            // Fresh activation starts today; a renewal starts the day AFTER current expiry
+            // (the next period's first day), so months never drift across renewals.
+            let start;
+            if (d.expiresAt && d.expiresAt > now) {
+                start = new Date(d.expiresAt);
+                start.setDate(start.getDate() + 1);
+                start = start.getTime();
+            } else {
+                start = now;
+            }
+            const newExpiry = addMonths(start, pend.months); // last full day of the paid period
             // Only the tenant document is written (allowed for admins by the rules).
             // We keep a light approval record on the tenant doc itself instead of
             // writing to the owner-only payments subcollection.
