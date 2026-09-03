@@ -611,6 +611,15 @@
             <div id="owner-empty" class="empty-state"><div class="ico">🏢</div><span data-i18n="ownerNoTenants">No businesses registered yet</span></div>
         </div>
     </div>
+
+    <div class="card" style="margin-top:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+            <h3 style="margin:0;color:var(--primary);" data-i18n="usageTitle">Firebase Usage (today)</h3>
+            <a href="https://console.firebase.google.com/project/halltan-pos/usage" target="_blank" class="btn btn-ghost" style="text-decoration:none;" data-i18n="usageRealBtn">↗ Real usage in Firebase</a>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);margin:8px 0 14px;" data-i18n="usageHint">Approximate — counts only Firestore operations this device made today, against the free-tier daily limits. For the true platform-wide figure, open the Firebase Console.</p>
+        <div id="usage-bars"></div>
+    </div>
 </div>
 
 <div id="subscription-modal" class="modal">
@@ -916,6 +925,9 @@
             ownerTenants: "Biashara zilizosajiliwa", ownerEmail: "Barua pepe ya mmiliki", ownerNoTenants: "Hakuna biashara iliyosajiliwa bado", ownerLoadErr: "Imeshindwa kupakua orodha ya biashara.",
             choosePlan: "Chagua kifurushi", chooseDuration: "Muda", amountToPay: "Kiasi cha kulipa",
             ownerPending: "Malipo yanayosubiri", paymentCol: "Malipo", pendingWord: "Inasubiri", approve: "Thibitisha", reject: "Kataa",
+            usageTitle: "Matumizi ya Firebase (leo)", usageRealBtn: "↗ Matumizi halisi Firebase",
+            usageHint: "Makadirio — inahesabu tu operesheni za Firestore zilizofanywa na kifaa hiki leo, dhidi ya kikomo cha bure cha kila siku. Kwa takwimu halisi ya jukwaa zima, fungua Firebase Console.",
+            usageReads: "Kusoma (Reads)", usageWrites: "Kuandika (Writes)", usageDeletes: "Kufuta (Deletes)",
             noPending: "Hakuna malipo yanayosubiri.", approveConfirm: "Thibitisha malipo? {tier} · miezi {months} · TSh {amount}. Akaunti itawashwa na muda kuongezwa.",
             approvedOk: "Malipo yamethibitishwa na akaunti imewashwa.", approveErr: "Imeshindwa kuthibitisha:", rejectConfirm: "Kataa malipo haya?", rejectedOk: "Malipo yamekataliwa.",
             errBizName: "Jina la biashara linahitajika", errLogoSize: "Nembo ni kubwa mno (kikomo 512KB)"
@@ -1003,6 +1015,9 @@
             ownerTenants: "Registered businesses", ownerEmail: "Owner email", ownerNoTenants: "No businesses registered yet", ownerLoadErr: "Couldn't load the business list.",
             choosePlan: "Choose plan", chooseDuration: "Duration", amountToPay: "Amount to pay",
             ownerPending: "Pending payments", paymentCol: "Payment", pendingWord: "Pending", approve: "Approve", reject: "Reject",
+            usageTitle: "Firebase Usage (today)", usageRealBtn: "↗ Real usage in Firebase",
+            usageHint: "Approximate — counts only Firestore operations this device made today, against the free-tier daily limits. For the true platform-wide figure, open the Firebase Console.",
+            usageReads: "Reads", usageWrites: "Writes", usageDeletes: "Deletes",
             noPending: "No pending payment.", approveConfirm: "Approve payment? {tier} · {months} months · TSh {amount}. Account will be activated and extended.",
             approvedOk: "Payment approved and account activated.", approveErr: "Approval failed:", rejectConfirm: "Reject this payment?", rejectedOk: "Payment rejected.",
             errBizName: "Business name is required", errLogoSize: "Logo is too large (max 512KB)"
@@ -1172,6 +1187,32 @@
         const emailEl = document.getElementById('owner-email');
         if (emailEl) emailEl.innerText = (currentUser && currentUser.email) || '';
         loadOwnerTenants();
+        renderUsage();
+    }
+
+    // Render the approximate usage bars (reads/writes/deletes vs free ceilings).
+    function renderUsage() {
+        const wrap = document.getElementById('usage-bars');
+        if (!wrap) return;
+        if (usageMeter.day !== todayKey()) usageMeter = { day: todayKey(), reads: 0, writes: 0, deletes: 0 };
+        const rows = [
+            { label: t('usageReads'), used: usageMeter.reads, max: FREE_CEILINGS.reads },
+            { label: t('usageWrites'), used: usageMeter.writes, max: FREE_CEILINGS.writes },
+            { label: t('usageDeletes'), used: usageMeter.deletes, max: FREE_CEILINGS.deletes }
+        ];
+        wrap.innerHTML = rows.map(r => {
+            const pct = Math.min(100, Math.round((r.used / r.max) * 100));
+            const color = pct >= 90 ? 'var(--danger)' : pct >= 70 ? 'var(--gold)' : 'var(--accent)';
+            return `<div style="margin-bottom:12px;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+                    <span style="font-weight:600;">${r.label}</span>
+                    <span style="color:var(--text-muted);">${r.used.toLocaleString()} / ${r.max.toLocaleString()} (${pct}%)</span>
+                </div>
+                <div style="height:8px;background:var(--border);border-radius:6px;overflow:hidden;">
+                    <div style="height:100%;width:${pct}%;background:${color};border-radius:6px;transition:width .3s;"></div>
+                </div>
+            </div>`;
+        }).join('');
     }
     async function loadOwnerTenants() {
         const body = document.getElementById('owner-tenants-body');
@@ -1182,6 +1223,7 @@
         if (!firebaseReady || !db) return;
         try {
             const snap = await db.collection('tenants').get();
+            countReads(snap.size || 0);
             let n = 0, pendingCount = 0;
             const rows = [];
             snap.forEach(doc => {
@@ -1303,8 +1345,33 @@
     function cloudReady() { return firebaseReady && db && currentUser && navigator.onLine; }
     function tenantRef() { return db.collection('tenants').doc(currentUser.uid); }
 
+    /* ---- Approximate usage meter (this device/session only) ----
+       Firebase does NOT expose real quota to client code, so this counts only
+       the Firestore ops THIS browser performs today, against the free-tier
+       ceilings. It's an indicator, not the true platform-wide figure. */
+    const FREE_CEILINGS = { reads: 50000, writes: 20000, deletes: 20000 };
+    function todayKey() { const d = new Date(); return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate(); }
+    let usageMeter = (function () {
+        try {
+            const raw = localStorage.getItem('halltan_usage');
+            if (raw) { const u = JSON.parse(raw); if (u.day === todayKey()) return u; }
+        } catch (e) {}
+        return { day: todayKey(), reads: 0, writes: 0, deletes: 0 };
+    })();
+    function saveUsage() { try { localStorage.setItem('halltan_usage', JSON.stringify(usageMeter)); } catch (e) {} }
+    function bumpUsage(kind, n) {
+        if (usageMeter.day !== todayKey()) usageMeter = { day: todayKey(), reads: 0, writes: 0, deletes: 0 };
+        usageMeter[kind] = (usageMeter[kind] || 0) + (n || 1);
+        saveUsage();
+        if (typeof renderUsage === 'function') renderUsage();
+    }
+    function countReads(n) { bumpUsage('reads', n); }
+    function countWrites(n) { bumpUsage('writes', n); }
+    function countDeletes(n) { bumpUsage('deletes', n); }
+
     function cloudPush(store, obj) {
         if (!cloudReady()) return;               // offline → stays local, syncs next login
+        countWrites(1);
         if (store === 'meta') {
             tenantRef().set({ [obj.id === 'businessProfile' ? 'businessProfile' : ('meta_' + obj.id)]: obj.value }, { merge: true })
                 .catch(e => console.warn('cloudPush meta', e));
@@ -1315,6 +1382,7 @@
     }
     function cloudDelete(store, id) {
         if (!cloudReady()) return;
+        countDeletes(1);
         tenantRef().collection(store).doc(String(id)).delete().catch(e => console.warn('cloudDelete', e));
     }
     async function cloudPullAll(uid) {
@@ -1322,6 +1390,7 @@
         for (const store of ['products', 'customers', 'sales']) {
             try {
                 const snap = await db.collection('tenants').doc(uid).collection(store).get();
+                countReads(snap.size || 0); // each doc read counts
                 snap.forEach(docu => {
                     const obj = docu.data();
                     const i = mem[store].findIndex(x => String(x.id) === String(obj.id));
