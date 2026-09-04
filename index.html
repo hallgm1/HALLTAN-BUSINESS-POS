@@ -12,6 +12,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e293b">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HALLTAN POS">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <style>
         :root {
             /* Neutral professional business palette (slate + indigo) */
@@ -207,6 +215,7 @@
         <span>HALLTAN BUSINESS POS<small>Business Point of Sale</small></span>
     </div>
     <div class="user-nav-info" id="nav-user-area">
+        <button id="pwa-install-btn" onclick="pwaInstall()" style="display:none;background:var(--accent);border:none;color:#fff;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:700;cursor:pointer;">⬇ Install App</button>
         <span class="sync-pill" id="sync-pill"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">Online</span></span>
         <select class="lang-select" id="lang-selector" onchange="changeLanguage(this.value)">
             <option value="sw">&#127481;&#127487; Swahili</option>
@@ -2906,6 +2915,39 @@
         document.addEventListener('keydown', e => {
             if (e.key === 'F2') { e.preventDefault(); if (document.getElementById('app-viewport').style.display !== 'none') openCheckout(); }
         });
+    });
+</script>
+<script>
+    /* ---- PWA: service worker + install prompt ---- */
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+            navigator.serviceWorker.register('sw.js')
+                .then(function (reg) { console.log('SW registered', reg.scope); })
+                .catch(function (e) { console.warn('SW registration failed', e); });
+        });
+    }
+    let _deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        _deferredPrompt = e;
+        const btn = document.getElementById('pwa-install-btn');
+        if (btn) btn.style.display = 'inline-block';
+    });
+    function pwaInstall() {
+        if (!_deferredPrompt) {
+            alert('To install: open your browser menu and choose "Add to Home Screen".');
+            return;
+        }
+        _deferredPrompt.prompt();
+        _deferredPrompt.userChoice.finally(function () {
+            _deferredPrompt = null;
+            const btn = document.getElementById('pwa-install-btn');
+            if (btn) btn.style.display = 'none';
+        });
+    }
+    window.addEventListener('appinstalled', function () {
+        const btn = document.getElementById('pwa-install-btn');
+        if (btn) btn.style.display = 'none';
     });
 </script>
 </body>
