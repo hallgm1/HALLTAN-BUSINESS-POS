@@ -1157,6 +1157,20 @@
         }
     });
 
+    // After a redirect sign-in (used in installed PWA mode), collect the result
+    // so any error (e.g. unauthorized domain) is surfaced. Success is handled by
+    // onAuthStateChanged above.
+    if (firebaseReady) {
+        auth.getRedirectResult().catch(function (error) {
+            if (error && error.code) handleLoginError(error);
+        });
+    }
+
+    // Detect installed/standalone PWA mode — popups fail there, so use redirect.
+    function isStandalonePWA() {
+        return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+            || window.navigator.standalone === true;
+    }
     function loginWithGoogle() {
         if (!firebaseReady) {
             alert(currentLang === 'sw'
@@ -1165,18 +1179,30 @@
             return;
         }
         const provider = new firebase.auth.GoogleAuthProvider();
+        // In an installed PWA the Google popup is blocked/blank, so redirect instead.
+        if (isStandalonePWA()) {
+            auth.signInWithRedirect(provider).catch(error => handleLoginError(error));
+            return;
+        }
         auth.signInWithPopup(provider).catch(error => {
-            // Common on GitHub Pages before the domain is authorized
-            if (error && error.code === 'auth/unauthorized-domain') {
-                alert(currentLang === 'sw'
-                    ? "Kikoa hiki bado hakijaruhusiwa kwenye Firebase. Ongeza domain kwenye Authentication → Settings → Authorized domains."
-                    : "This domain isn't authorized in Firebase yet. Add it under Authentication → Settings → Authorized domains.");
-            } else if (error && error.code === 'auth/popup-closed-by-user') {
-                /* user closed the popup; ignore */
-            } else {
-                alert("Login failed: " + (error && error.message ? error.message : error));
+            // If the popup is blocked even in a browser, fall back to redirect.
+            if (error && (error.code === 'auth/popup-blocked' || error.code === 'auth/operation-not-supported-in-this-environment' || error.code === 'auth/cancelled-popup-request')) {
+                auth.signInWithRedirect(provider).catch(e2 => handleLoginError(e2));
+                return;
             }
+            handleLoginError(error);
         });
+    }
+    function handleLoginError(error) {
+        if (error && error.code === 'auth/unauthorized-domain') {
+            alert(currentLang === 'sw'
+                ? "Kikoa hiki bado hakijaruhusiwa kwenye Firebase. Ongeza domain kwenye Authentication → Settings → Authorized domains."
+                : "This domain isn't authorized in Firebase yet. Add it under Authentication → Settings → Authorized domains.");
+        } else if (error && error.code === 'auth/popup-closed-by-user') {
+            /* user closed the popup; ignore */
+        } else if (error) {
+            alert("Login failed: " + (error.message || error));
+        }
     }
     function handleAuthAction() {
         if (currentUser) auth.signOut(); else loginWithGoogle();

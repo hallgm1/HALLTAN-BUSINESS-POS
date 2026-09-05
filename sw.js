@@ -1,7 +1,7 @@
 /* HALLTAN BUSINESS POS — service worker
    Caches the app shell so the app launches with no internet.
    Business data is handled by IndexedDB + Firebase in the app. */
-const CACHE = 'halltan-pos-v1';
+const CACHE = 'halltan-pos-v2';
 const SHELL = [
   './',
   './index.html',
